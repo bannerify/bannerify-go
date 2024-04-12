@@ -146,7 +146,7 @@ type APIKeyListResponseKeysRatelimit struct {
 	RefillRate int64 `json:"refillRate,required"`
 	// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
 	// accurate.
-	Type APIKeyListResponseKeysRatelimitType `json:"type,required"`
+	Type APIKeyListResponseKeysRatelimitType `json:"type"`
 	JSON apiKeyListResponseKeysRatelimitJSON `json:"-"`
 }
 

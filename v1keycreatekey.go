@@ -131,7 +131,7 @@ type V1KeyCreateKeyNewParamsRatelimit struct {
 	RefillRate param.Field[int64] `json:"refillRate,required"`
 	// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
 	// accurate.
-	Type param.Field[V1KeyCreateKeyNewParamsRatelimitType] `json:"type,required"`
+	Type param.Field[V1KeyCreateKeyNewParamsRatelimitType] `json:"type"`
 }
 
 func (r V1KeyCreateKeyNewParamsRatelimit) MarshalJSON() (data []byte, err error) {
