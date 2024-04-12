@@ -122,7 +122,7 @@ type V1KeyGetKeyGetResponseRatelimit struct {
 	RefillRate int64 `json:"refillRate,required"`
 	// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
 	// accurate.
-	Type V1KeyGetKeyGetResponseRatelimitType `json:"type,required"`
+	Type V1KeyGetKeyGetResponseRatelimitType `json:"type"`
 	JSON v1KeyGetKeyGetResponseRatelimitJSON `json:"-"`
 }
 
