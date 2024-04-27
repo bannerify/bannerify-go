@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package tempbannerify_test
+package bannerify_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/TEMP_bannerify-go"
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/testutil"
-	"github.com/stainless-sdks/TEMP_bannerify-go/option"
+	"github.com/stainless-sdks/bannerify-go"
+	"github.com/stainless-sdks/bannerify-go/internal/testutil"
+	"github.com/stainless-sdks/bannerify-go/option"
 )
 
 func TestAPIKeyListWithOptionalParams(t *testing.T) {
@@ -21,20 +21,20 @@ func TestAPIKeyListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := tempbannerify.NewClient(
+	client := bannerify.NewClient(
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.APIs.Keys.List(
 		context.TODO(),
 		"api_1234",
-		tempbannerify.APIKeyListParams{
-			Limit:   tempbannerify.F(int64(100)),
-			Offset:  tempbannerify.F(0.000000),
-			OwnerID: tempbannerify.F("x"),
+		bannerify.APIKeyListParams{
+			Limit:   bannerify.F(int64(100)),
+			Offset:  bannerify.F(0.000000),
+			OwnerID: bannerify.F("x"),
 		},
 	)
 	if err != nil {
-		var apierr *tempbannerify.Error
+		var apierr *bannerify.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

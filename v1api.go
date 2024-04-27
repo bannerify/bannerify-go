@@ -1,9 +1,9 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package tempbannerify
+package bannerify
 
 import (
-	"github.com/stainless-sdks/TEMP_bannerify-go/option"
+	"github.com/stainless-sdks/bannerify-go/option"
 )
 
 // V1APIService contains methods and other services that help with interacting with

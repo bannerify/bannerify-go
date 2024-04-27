@@ -1,9 +1,9 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package tempbannerify
+package bannerify
 
 import (
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/apierror"
+	"github.com/stainless-sdks/bannerify-go/internal/apierror"
 )
 
 type Error = apierror.Error

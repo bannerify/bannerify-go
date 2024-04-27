@@ -34,7 +34,7 @@ To use a local version of this library from source in another project, edit the 
 directive. This can be done through the CLI with the following:
 
 ```bash
-go mod edit -replace github.com/stainless-sdks/TEMP_bannerify-go=/path/to/TEMP_bannerify-go
+go mod edit -replace github.com/stainless-sdks/bannerify-go=/path/to/bannerify-go
 ```
 
 ## Running tests
