@@ -1,4 +1,4 @@
-module github.com/stainless-sdks/TEMP_bannerify-go
+module github.com/stainless-sdks/bannerify-go
 
 go 1.19
 

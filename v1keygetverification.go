@@ -1,17 +1,17 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package tempbannerify
+package bannerify
 
 import (
 	"context"
 	"net/http"
 	"net/url"
 
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/apijson"
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/apiquery"
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/param"
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/requestconfig"
-	"github.com/stainless-sdks/TEMP_bannerify-go/option"
+	"github.com/stainless-sdks/bannerify-go/internal/apijson"
+	"github.com/stainless-sdks/bannerify-go/internal/apiquery"
+	"github.com/stainless-sdks/bannerify-go/internal/param"
+	"github.com/stainless-sdks/bannerify-go/internal/requestconfig"
+	"github.com/stainless-sdks/bannerify-go/option"
 )
 
 // V1KeyGetVerificationService contains methods and other services that help with

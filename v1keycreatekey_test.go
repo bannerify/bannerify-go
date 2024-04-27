@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package tempbannerify_test
+package bannerify_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/TEMP_bannerify-go"
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/testutil"
-	"github.com/stainless-sdks/TEMP_bannerify-go/option"
+	"github.com/stainless-sdks/bannerify-go"
+	"github.com/stainless-sdks/bannerify-go/internal/testutil"
+	"github.com/stainless-sdks/bannerify-go/option"
 )
 
 func TestV1KeyCreateKeyNewWithOptionalParams(t *testing.T) {
@@ -21,37 +21,37 @@ func TestV1KeyCreateKeyNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := tempbannerify.NewClient(
+	client := bannerify.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.V1.Keys.CreateKey.New(context.TODO(), tempbannerify.V1KeyCreateKeyNewParams{
-		APIID:       tempbannerify.F("api_123"),
-		ByteLength:  tempbannerify.F(int64(16)),
-		Enabled:     tempbannerify.F(false),
-		Environment: tempbannerify.F("string"),
-		Expires:     tempbannerify.F(int64(1623869797161)),
-		Meta: tempbannerify.F(map[string]interface{}{
+	_, err := client.V1.Keys.CreateKey.New(context.TODO(), bannerify.V1KeyCreateKeyNewParams{
+		APIID:       bannerify.F("api_123"),
+		ByteLength:  bannerify.F(int64(16)),
+		Enabled:     bannerify.F(false),
+		Environment: bannerify.F("string"),
+		Expires:     bannerify.F(int64(1623869797161)),
+		Meta: bannerify.F(map[string]interface{}{
 			"billingTier": "PRO",
 			"trialEnds":   "2023-06-16T17:16:37.161Z",
 		}),
-		Name:    tempbannerify.F("my key"),
-		OwnerID: tempbannerify.F("team_123"),
-		Prefix:  tempbannerify.F("string"),
-		Ratelimit: tempbannerify.F(tempbannerify.V1KeyCreateKeyNewParamsRatelimit{
-			Type:           tempbannerify.F(tempbannerify.V1KeyCreateKeyNewParamsRatelimitTypeFast),
-			Limit:          tempbannerify.F(int64(10)),
-			RefillRate:     tempbannerify.F(int64(1)),
-			RefillInterval: tempbannerify.F(int64(60)),
+		Name:    bannerify.F("my key"),
+		OwnerID: bannerify.F("team_123"),
+		Prefix:  bannerify.F("string"),
+		Ratelimit: bannerify.F(bannerify.V1KeyCreateKeyNewParamsRatelimit{
+			Type:           bannerify.F(bannerify.V1KeyCreateKeyNewParamsRatelimitTypeFast),
+			Limit:          bannerify.F(int64(10)),
+			RefillRate:     bannerify.F(int64(1)),
+			RefillInterval: bannerify.F(int64(60)),
 		}),
-		Refill: tempbannerify.F(tempbannerify.V1KeyCreateKeyNewParamsRefill{
-			Interval: tempbannerify.F(tempbannerify.V1KeyCreateKeyNewParamsRefillIntervalDaily),
-			Amount:   tempbannerify.F(int64(0)),
+		Refill: bannerify.F(bannerify.V1KeyCreateKeyNewParamsRefill{
+			Interval: bannerify.F(bannerify.V1KeyCreateKeyNewParamsRefillIntervalDaily),
+			Amount:   bannerify.F(int64(0)),
 		}),
-		Remaining: tempbannerify.F(int64(1000)),
-		Roles:     tempbannerify.F([]string{"admin", "finance"}),
+		Remaining: bannerify.F(int64(1000)),
+		Roles:     bannerify.F([]string{"admin", "finance"}),
 	})
 	if err != nil {
-		var apierr *tempbannerify.Error
+		var apierr *bannerify.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

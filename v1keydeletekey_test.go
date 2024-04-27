@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package tempbannerify_test
+package bannerify_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/TEMP_bannerify-go"
-	"github.com/stainless-sdks/TEMP_bannerify-go/internal/testutil"
-	"github.com/stainless-sdks/TEMP_bannerify-go/option"
+	"github.com/stainless-sdks/bannerify-go"
+	"github.com/stainless-sdks/bannerify-go/internal/testutil"
+	"github.com/stainless-sdks/bannerify-go/option"
 )
 
 func TestV1KeyDeleteKeyNew(t *testing.T) {
@@ -21,14 +21,14 @@ func TestV1KeyDeleteKeyNew(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := tempbannerify.NewClient(
+	client := bannerify.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.V1.Keys.DeleteKey.New(context.TODO(), tempbannerify.V1KeyDeleteKeyNewParams{
-		KeyID: tempbannerify.F("key_1234"),
+	_, err := client.V1.Keys.DeleteKey.New(context.TODO(), bannerify.V1KeyDeleteKeyNewParams{
+		KeyID: bannerify.F("key_1234"),
 	})
 	if err != nil {
-		var apierr *tempbannerify.Error
+		var apierr *bannerify.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
