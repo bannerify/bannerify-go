@@ -46,6 +46,7 @@ type V1KeyVerifyKeyNewParams struct {
 	APIID param.Field[string] `json:"apiId"`
 	// Perform RBAC checks
 	Authorization param.Field[V1KeyVerifyKeyNewParamsAuthorization] `json:"authorization"`
+	Ratelimit     param.Field[V1KeyVerifyKeyNewParamsRatelimit]     `json:"ratelimit"`
 }
 
 func (r V1KeyVerifyKeyNewParams) MarshalJSON() (data []byte, err error) {
@@ -59,5 +60,14 @@ type V1KeyVerifyKeyNewParamsAuthorization struct {
 }
 
 func (r V1KeyVerifyKeyNewParamsAuthorization) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type V1KeyVerifyKeyNewParamsRatelimit struct {
+	// Override how many tokens are deducted during the ratelimit operation.
+	Cost param.Field[int64] `json:"cost"`
+}
+
+func (r V1KeyVerifyKeyNewParamsRatelimit) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }

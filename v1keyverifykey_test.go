@@ -40,6 +40,9 @@ func TestV1KeyVerifyKeyNewWithOptionalParams(t *testing.T) {
 				},
 			}),
 		}),
+		Ratelimit: bannerify.F(bannerify.V1KeyVerifyKeyNewParamsRatelimit{
+			Cost: bannerify.F(int64(0)),
+		}),
 	})
 	if err != nil {
 		var apierr *bannerify.Error
