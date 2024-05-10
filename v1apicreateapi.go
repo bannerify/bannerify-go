@@ -13,10 +13,11 @@ import (
 )
 
 // V1APICreateAPIService contains methods and other services that help with
-// interacting with the bannerify API. Note, unlike clients, this service does not
-// read variables from the environment automatically. You should not instantiate
-// this service directly, and instead use the [NewV1APICreateAPIService] method
-// instead.
+// interacting with the bannerify API.
+//
+// Note, unlike clients, this service does not read variables from the environment
+// automatically. You should not instantiate this service directly, and instead use
+// the [NewV1APICreateAPIService] method instead.
 type V1APICreateAPIService struct {
 	Options []option.RequestOption
 }
