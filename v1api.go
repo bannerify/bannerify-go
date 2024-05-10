@@ -7,9 +7,11 @@ import (
 )
 
 // V1APIService contains methods and other services that help with interacting with
-// the bannerify API. Note, unlike clients, this service does not read variables
-// from the environment automatically. You should not instantiate this service
-// directly, and instead use the [NewV1APIService] method instead.
+// the bannerify API.
+//
+// Note, unlike clients, this service does not read variables from the environment
+// automatically. You should not instantiate this service directly, and instead use
+// the [NewV1APIService] method instead.
 type V1APIService struct {
 	Options   []option.RequestOption
 	GetAPI    *V1APIGetAPIService

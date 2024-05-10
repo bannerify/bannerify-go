@@ -15,10 +15,11 @@ import (
 )
 
 // V1KeyGetKeyService contains methods and other services that help with
-// interacting with the bannerify API. Note, unlike clients, this service does not
-// read variables from the environment automatically. You should not instantiate
-// this service directly, and instead use the [NewV1KeyGetKeyService] method
-// instead.
+// interacting with the bannerify API.
+//
+// Note, unlike clients, this service does not read variables from the environment
+// automatically. You should not instantiate this service directly, and instead use
+// the [NewV1KeyGetKeyService] method instead.
 type V1KeyGetKeyService struct {
 	Options []option.RequestOption
 }
