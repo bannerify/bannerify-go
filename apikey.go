@@ -103,8 +103,10 @@ type APIKeyListResponseKey struct {
 	// If this field is null or undefined, the key has no request limit.
 	Remaining float64 `json:"remaining"`
 	// All roles this key belongs to
-	Roles []string                  `json:"roles"`
-	JSON  apiKeyListResponseKeyJSON `json:"-"`
+	Roles []string `json:"roles"`
+	// The unix timestamp in milliseconds when the key was last updated
+	UpdatedAt float64                   `json:"updatedAt"`
+	JSON      apiKeyListResponseKeyJSON `json:"-"`
 }
 
 // apiKeyListResponseKeyJSON contains the JSON metadata for the struct
@@ -126,6 +128,7 @@ type apiKeyListResponseKeyJSON struct {
 	Refill      apijson.Field
 	Remaining   apijson.Field
 	Roles       apijson.Field
+	UpdatedAt   apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
