@@ -43,14 +43,14 @@ func (r *V1KeyGetKeyService) Get(ctx context.Context, query V1KeyGetKeyGetParams
 type V1KeyGetKeyGetResponse struct {
 	// The id of the key
 	ID string `json:"id,required"`
+	// The unix timestamp in milliseconds when the key was created
+	CreatedAt float64 `json:"createdAt,required"`
 	// The first few characters of the key to visually identify it
 	Start string `json:"start,required"`
 	// The id of the workspace that owns the key
 	WorkspaceID string `json:"workspaceId,required"`
 	// The id of the api that this key is for
 	APIID string `json:"apiId"`
-	// The unix timestamp in milliseconds when the key was created
-	CreatedAt float64 `json:"createdAt"`
 	// The unix timestamp in milliseconds when the key was deleted. We don't delete the
 	// key outright, you can restore it later.
 	DeletedAt float64 `json:"deletedAt"`
@@ -88,10 +88,10 @@ type V1KeyGetKeyGetResponse struct {
 // [V1KeyGetKeyGetResponse]
 type v1KeyGetKeyGetResponseJSON struct {
 	ID          apijson.Field
+	CreatedAt   apijson.Field
 	Start       apijson.Field
 	WorkspaceID apijson.Field
 	APIID       apijson.Field
-	CreatedAt   apijson.Field
 	DeletedAt   apijson.Field
 	Enabled     apijson.Field
 	Expires     apijson.Field
