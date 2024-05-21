@@ -13,7 +13,7 @@ import (
 	"github.com/stainless-sdks/bannerify-go/option"
 )
 
-func TestV1KeyGetKeyGet(t *testing.T) {
+func TestV1KeyGetKeyGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +25,8 @@ func TestV1KeyGetKeyGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.V1.Keys.GetKey.Get(context.TODO(), bannerify.V1KeyGetKeyGetParams{
-		KeyID: bannerify.F("key_1234"),
+		KeyID:   bannerify.F("key_1234"),
+		Decrypt: bannerify.F(true),
 	})
 	if err != nil {
 		var apierr *bannerify.Error
