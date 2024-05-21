@@ -94,6 +94,8 @@ type APIKeyListResponseKey struct {
 	OwnerID string `json:"ownerId"`
 	// All permissions this key has
 	Permissions []string `json:"permissions"`
+	// The key in plaintext
+	Plaintext string `json:"plaintext"`
 	// Unkey comes with per-key ratelimiting out of the box.
 	Ratelimit APIKeyListResponseKeysRatelimit `json:"ratelimit"`
 	// Unkey allows you to refill remaining verifications on a key on a regular
@@ -124,6 +126,7 @@ type apiKeyListResponseKeyJSON struct {
 	Name        apijson.Field
 	OwnerID     apijson.Field
 	Permissions apijson.Field
+	Plaintext   apijson.Field
 	Ratelimit   apijson.Field
 	Refill      apijson.Field
 	Remaining   apijson.Field

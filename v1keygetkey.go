@@ -69,6 +69,8 @@ type V1KeyGetKeyGetResponse struct {
 	OwnerID string `json:"ownerId"`
 	// All permissions this key has
 	Permissions []string `json:"permissions"`
+	// The key in plaintext
+	Plaintext string `json:"plaintext"`
 	// Unkey comes with per-key ratelimiting out of the box.
 	Ratelimit V1KeyGetKeyGetResponseRatelimit `json:"ratelimit"`
 	// Unkey allows you to refill remaining verifications on a key on a regular
@@ -99,6 +101,7 @@ type v1KeyGetKeyGetResponseJSON struct {
 	Name        apijson.Field
 	OwnerID     apijson.Field
 	Permissions apijson.Field
+	Plaintext   apijson.Field
 	Ratelimit   apijson.Field
 	Refill      apijson.Field
 	Remaining   apijson.Field
@@ -215,6 +218,9 @@ func (r V1KeyGetKeyGetResponseRefillInterval) IsKnown() bool {
 type V1KeyGetKeyGetParams struct {
 	// The id of the key to fetch
 	KeyID param.Field[string] `query:"keyId,required"`
+	// Decrypt and display the raw key. Only possible if the key was encrypted when
+	// generated.
+	Decrypt param.Field[bool] `query:"decrypt"`
 }
 
 // URLQuery serializes [V1KeyGetKeyGetParams]'s query parameters as `url.Values`.
