@@ -121,12 +121,15 @@ func (r v1KeyGetKeyGetResponseJSON) RawJSON() string {
 
 // Unkey comes with per-key ratelimiting out of the box.
 type V1KeyGetKeyGetResponseRatelimit struct {
+	Async bool `json:"async,required"`
+	// The duration of the ratelimit window, in milliseconds.
+	Duration int64 `json:"duration,required"`
 	// The total amount of burstable requests.
 	Limit int64 `json:"limit,required"`
 	// Determines the speed at which tokens are refilled, in milliseconds.
-	RefillInterval int64 `json:"refillInterval,required"`
+	RefillInterval int64 `json:"refillInterval"`
 	// How many tokens to refill during each refillInterval.
-	RefillRate int64 `json:"refillRate,required"`
+	RefillRate int64 `json:"refillRate"`
 	// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
 	// accurate.
 	Type V1KeyGetKeyGetResponseRatelimitType `json:"type"`
@@ -136,6 +139,8 @@ type V1KeyGetKeyGetResponseRatelimit struct {
 // v1KeyGetKeyGetResponseRatelimitJSON contains the JSON metadata for the struct
 // [V1KeyGetKeyGetResponseRatelimit]
 type v1KeyGetKeyGetResponseRatelimitJSON struct {
+	Async          apijson.Field
+	Duration       apijson.Field
 	Limit          apijson.Field
 	RefillInterval apijson.Field
 	RefillRate     apijson.Field

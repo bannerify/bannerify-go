@@ -39,9 +39,11 @@ func TestV1KeyUpdateKeyNewWithOptionalParams(t *testing.T) {
 		OwnerID: bannerify.F("user_123"),
 		Ratelimit: bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRatelimit{
 			Type:           bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRatelimitTypeFast),
+			Async:          bannerify.F(true),
 			Limit:          bannerify.F(int64(10)),
 			RefillRate:     bannerify.F(int64(1)),
 			RefillInterval: bannerify.F(int64(60)),
+			Duration:       bannerify.F(int64(1)),
 		}),
 		Refill: bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRefill{
 			Interval: bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRefillIntervalDaily),
