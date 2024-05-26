@@ -76,11 +76,16 @@ type V1KeyUpdateKeyNewParamsRatelimit struct {
 	Limit param.Field[int64] `json:"limit,required"`
 	// Determines the speed at which tokens are refilled, in milliseconds.
 	RefillInterval param.Field[int64] `json:"refillInterval,required"`
+	// Asnyc ratelimiting doesn't add latency, while sync ratelimiting is more
+	// accurate.
+	Async param.Field[bool] `json:"async"`
+	// The duration of each ratelimit window, in milliseconds.
+	Duration param.Field[int64] `json:"duration"`
 	// How many tokens to refill during each refillInterval.
-	RefillRate param.Field[int64] `json:"refillRate,required"`
+	RefillRate param.Field[int64] `json:"refillRate"`
 	// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
 	// accurate.
-	Type param.Field[V1KeyUpdateKeyNewParamsRatelimitType] `json:"type,required"`
+	Type param.Field[V1KeyUpdateKeyNewParamsRatelimitType] `json:"type"`
 }
 
 func (r V1KeyUpdateKeyNewParamsRatelimit) MarshalJSON() (data []byte, err error) {
