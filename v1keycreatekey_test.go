@@ -38,10 +38,12 @@ func TestV1KeyCreateKeyNewWithOptionalParams(t *testing.T) {
 		OwnerID: bannerify.F("team_123"),
 		Prefix:  bannerify.F("string"),
 		Ratelimit: bannerify.F(bannerify.V1KeyCreateKeyNewParamsRatelimit{
+			Async:          bannerify.F(true),
 			Type:           bannerify.F(bannerify.V1KeyCreateKeyNewParamsRatelimitTypeFast),
 			Limit:          bannerify.F(int64(10)),
+			Duration:       bannerify.F(int64(60000)),
 			RefillRate:     bannerify.F(int64(1)),
-			RefillInterval: bannerify.F(int64(60)),
+			RefillInterval: bannerify.F(int64(1)),
 		}),
 		Refill: bannerify.F(bannerify.V1KeyCreateKeyNewParamsRefill{
 			Interval: bannerify.F(bannerify.V1KeyCreateKeyNewParamsRefillIntervalDaily),

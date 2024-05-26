@@ -105,7 +105,7 @@ type V1KeyCreateKeyNewParams struct {
 	// The underscore is automatically added if you are defining a prefix, for example:
 	// "prefix": "abc" will result in a key like abc_xxxxxxxxx
 	Prefix param.Field[string] `json:"prefix"`
-	// Unkey comes with per-key ratelimiting out of the box.
+	// Unkey comes with per-key fixed-window ratelimiting out of the box.
 	Ratelimit param.Field[V1KeyCreateKeyNewParamsRatelimit] `json:"ratelimit"`
 	// Unkey enables you to refill verifications for each key at regular intervals.
 	Refill param.Field[V1KeyCreateKeyNewParamsRefill] `json:"refill"`
@@ -122,16 +122,21 @@ func (r V1KeyCreateKeyNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// Unkey comes with per-key ratelimiting out of the box.
+// Unkey comes with per-key fixed-window ratelimiting out of the box.
 type V1KeyCreateKeyNewParamsRatelimit struct {
-	// The total amount of burstable requests.
+	// The window duration in milliseconds
+	Duration param.Field[int64] `json:"duration,required"`
+	// The total amount of requests in a given interval.
 	Limit param.Field[int64] `json:"limit,required"`
-	// Determines the speed at which tokens are refilled, in milliseconds.
-	RefillInterval param.Field[int64] `json:"refillInterval,required"`
+	// Async will return a response immediately, lowering latency at the cost of
+	// accuracy.
+	Async param.Field[bool] `json:"async"`
+	// The refill timeframe, in milliseconds.
+	RefillInterval param.Field[int64] `json:"refillInterval"`
 	// How many tokens to refill during each refillInterval.
-	RefillRate param.Field[int64] `json:"refillRate,required"`
-	// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
-	// accurate.
+	RefillRate param.Field[int64] `json:"refillRate"`
+	// Deprecated, used `async`. Fast ratelimiting doesn't add latency, while
+	// consistent ratelimiting is more accurate.
 	Type param.Field[V1KeyCreateKeyNewParamsRatelimitType] `json:"type"`
 }
 
@@ -139,8 +144,8 @@ func (r V1KeyCreateKeyNewParamsRatelimit) MarshalJSON() (data []byte, err error)
 	return apijson.MarshalRoot(r)
 }
 
-// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
-// accurate.
+// Deprecated, used `async`. Fast ratelimiting doesn't add latency, while
+// consistent ratelimiting is more accurate.
 type V1KeyCreateKeyNewParamsRatelimitType string
 
 const (
