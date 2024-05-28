@@ -96,6 +96,9 @@ type V1KeyCreateKeyNewParams struct {
 	// When validating a key, we will return this back to you, so you can clearly
 	// identify your user from their api key.
 	OwnerID param.Field[string] `json:"ownerId"`
+	// A list of permissions that this key should have. If the permission does not
+	// exist, an error is thrown
+	Permissions param.Field[[]string] `json:"permissions"`
 	// To make it easier for your users to understand which product an api key belongs
 	// to, you can add prefix them.
 	//
