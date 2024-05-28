@@ -4,6 +4,7 @@ package bannerify
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -36,6 +37,10 @@ func NewAPIKeyService(opts ...option.RequestOption) (r *APIKeyService) {
 
 func (r *APIKeyService) List(ctx context.Context, apiID string, query APIKeyListParams, opts ...option.RequestOption) (res *APIKeyListResponse, err error) {
 	opts = append(r.Options[:], opts...)
+	if apiID == "" {
+		err = errors.New("missing required apiId parameter")
+		return
+	}
 	path := fmt.Sprintf("v1/apis/%s/keys", apiID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
