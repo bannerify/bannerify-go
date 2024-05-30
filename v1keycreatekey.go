@@ -127,13 +127,13 @@ func (r V1KeyCreateKeyNewParams) MarshalJSON() (data []byte, err error) {
 
 // Unkey comes with per-key fixed-window ratelimiting out of the box.
 type V1KeyCreateKeyNewParamsRatelimit struct {
-	// The window duration in milliseconds
-	Duration param.Field[int64] `json:"duration,required"`
 	// The total amount of requests in a given interval.
 	Limit param.Field[int64] `json:"limit,required"`
 	// Async will return a response immediately, lowering latency at the cost of
-	// accuracy.
+	// accuracy. Will be required soon.
 	Async param.Field[bool] `json:"async"`
+	// The window duration in milliseconds. Will be required soon.
+	Duration param.Field[int64] `json:"duration"`
 	// The refill timeframe, in milliseconds.
 	RefillInterval param.Field[int64] `json:"refillInterval"`
 	// How many tokens to refill during each refillInterval.
