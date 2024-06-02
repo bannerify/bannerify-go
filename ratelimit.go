@@ -83,6 +83,8 @@ type RatelimitLimitParams struct {
 	// Expensive requests may use up more tokens. You can specify a cost to the request
 	// here and we'll deduct this many tokens in the current window. If there are not
 	// enough tokens left, the request is denied.
+	//
+	// Set it to 0 to receive the current limit without changing anything.
 	Cost param.Field[int64] `json:"cost"`
 	// Attach any metadata to this request
 	Meta param.Field[map[string]RatelimitLimitParamsMetaUnion] `json:"meta"`
