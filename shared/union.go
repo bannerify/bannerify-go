@@ -4,8 +4,13 @@ package shared
 
 type UnionString string
 
-func (UnionString) ImplementsRatelimitLimitParamsMetaUnion()          {}
-func (UnionString) ImplementsRatelimitLimitParamsResourcesMetaUnion() {}
+func (UnionString) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion()           {}
+func (UnionString) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndUnion()     {}
+func (UnionString) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrUnion() {}
+func (UnionString) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion()       {}
+func (UnionString) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndUnion() {}
+func (UnionString) ImplementsRatelimitLimitParamsMetaUnion()                                  {}
+func (UnionString) ImplementsRatelimitLimitParamsResourcesMetaUnion()                         {}
 
 type UnionBool bool
 

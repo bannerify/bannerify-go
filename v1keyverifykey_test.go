@@ -11,6 +11,7 @@ import (
 	"github.com/stainless-sdks/bannerify-go"
 	"github.com/stainless-sdks/bannerify-go/internal/testutil"
 	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/stainless-sdks/bannerify-go/shared"
 )
 
 func TestV1KeyVerifyKeyNewWithOptionalParams(t *testing.T) {
@@ -28,17 +29,7 @@ func TestV1KeyVerifyKeyNewWithOptionalParams(t *testing.T) {
 		Key:   bannerify.F("sk_1234"),
 		APIID: bannerify.F("api_1234"),
 		Authorization: bannerify.F(bannerify.V1KeyVerifyKeyNewParamsAuthorization{
-			Permissions: bannerify.F[any](map[string]interface{}{
-				"or": map[string]interface{}{
-					"0": map[string]interface{}{
-						"and": map[string]interface{}{
-							"0": "dns.record.read",
-							"1": "dns.record.update",
-						},
-					},
-					"1": "admin",
-				},
-			}),
+			Permissions: bannerify.F[bannerify.V1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion](shared.UnionString("string")),
 		}),
 		Ratelimit: bannerify.F(bannerify.V1KeyVerifyKeyNewParamsRatelimit{
 			Cost: bannerify.F(int64(0)),
