@@ -63,7 +63,7 @@ type V1KeysVerifyKeyResponse struct {
 	Environment string `json:"environment"`
 	// The unix timestamp in milliseconds when the key will expire. If this field is
 	// null or undefined, the key is not expiring.
-	Expires float64 `json:"expires"`
+	Expires int64 `json:"expires"`
 	// The id of the key
 	KeyID string `json:"keyId"`
 	// Any additional metadata you want to store with the key
@@ -81,7 +81,7 @@ type V1KeysVerifyKeyResponse struct {
 	Ratelimit V1KeysVerifyKeyResponseRatelimit `json:"ratelimit"`
 	// The number of requests that can be made with this key before it becomes invalid.
 	// If this field is null or undefined, the key has no request limit.
-	Remaining float64                     `json:"remaining"`
+	Remaining int64                       `json:"remaining"`
 	JSON      v1KeysVerifyKeyResponseJSON `json:"-"`
 }
 
@@ -148,11 +148,11 @@ func (r V1KeysVerifyKeyResponseCode) IsKnown() bool {
 // the key has no ratelimit.
 type V1KeysVerifyKeyResponseRatelimit struct {
 	// Maximum number of requests that can be made inside a window
-	Limit float64 `json:"limit,required"`
+	Limit int64 `json:"limit,required"`
 	// Remaining requests after this verification
-	Remaining float64 `json:"remaining,required"`
+	Remaining int64 `json:"remaining,required"`
 	// Unix timestamp in milliseconds when the ratelimit will reset
-	Reset float64                              `json:"reset,required"`
+	Reset int64                                `json:"reset,required"`
 	JSON  v1KeysVerifyKeyResponseRatelimitJSON `json:"-"`
 }
 

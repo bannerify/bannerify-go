@@ -40,11 +40,11 @@ func (r *RatelimitService) Limit(ctx context.Context, body RatelimitLimitParams,
 
 type RatelimitLimitResponse struct {
 	// How many requests are allowed within a window.
-	Limit float64 `json:"limit,required"`
+	Limit int64 `json:"limit,required"`
 	// How many requests can still be made in the current window.
-	Remaining float64 `json:"remaining,required"`
+	Remaining int64 `json:"remaining,required"`
 	// A unix millisecond timestamp when the limits reset.
-	Reset float64 `json:"reset,required"`
+	Reset int64 `json:"reset,required"`
 	// Returns true if the request should be processed, false if it was rejected.
 	Success bool                       `json:"success,required"`
 	JSON    ratelimitLimitResponseJSON `json:"-"`
