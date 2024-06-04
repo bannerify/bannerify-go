@@ -57,11 +57,236 @@ func (r V1KeyVerifyKeyNewParams) MarshalJSON() (data []byte, err error) {
 // Perform RBAC checks
 type V1KeyVerifyKeyNewParamsAuthorization struct {
 	// A query for which permissions you require
-	Permissions param.Field[interface{}] `json:"permissions"`
+	Permissions param.Field[V1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion] `json:"permissions"`
 }
 
 func (r V1KeyVerifyKeyNewParamsAuthorization) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// A query for which permissions you require
+type V1KeyVerifyKeyNewParamsAuthorizationPermissions struct {
+	And param.Field[interface{}] `json:"and,required"`
+	Or  param.Field[interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissions) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissions) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion() {
+}
+
+// A query for which permissions you require
+//
+// Satisfied by [shared.UnionString],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsAnd],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsOr],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissions].
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion interface {
+	ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion()
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAnd struct {
+	And param.Field[[]V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndUnion] `json:"and,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAnd) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAnd) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion() {
+}
+
+// A query for which permissions you require
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAnd struct {
+	And param.Field[interface{}] `json:"and,required"`
+	Or  param.Field[interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAnd) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAnd) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndUnion() {
+}
+
+// A query for which permissions you require
+//
+// Satisfied by [shared.UnionString],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndAnd],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOr],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAnd].
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndUnion interface {
+	ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndUnion()
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndAnd struct {
+	And param.Field[[]interface{}] `json:"and,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndAnd) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndAnd) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndUnion() {
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOr struct {
+	Or param.Field[[]V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrUnion] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOr) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndUnion() {
+}
+
+// A query for which permissions you require
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOr struct {
+	And param.Field[interface{}] `json:"and,required"`
+	Or  param.Field[interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOr) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrUnion() {
+}
+
+// A query for which permissions you require
+//
+// Satisfied by [shared.UnionString],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrAnd],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrOr],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOr].
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrUnion interface {
+	ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrUnion()
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrAnd struct {
+	And param.Field[[]interface{}] `json:"and,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrAnd) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrAnd) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrUnion() {
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrOr struct {
+	Or param.Field[[]interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrOr) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsAndAndOrOrUnion() {
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOr struct {
+	Or param.Field[[]V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOr) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsUnion() {
+}
+
+// A query for which permissions you require
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOr struct {
+	And param.Field[interface{}] `json:"and,required"`
+	Or  param.Field[interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOr) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion() {
+}
+
+// A query for which permissions you require
+//
+// Satisfied by [shared.UnionString],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAnd],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrOr],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOr].
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion interface {
+	ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion()
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAnd struct {
+	And param.Field[[]V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndUnion] `json:"and,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAnd) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAnd) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion() {
+}
+
+// A query for which permissions you require
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAnd struct {
+	And param.Field[interface{}] `json:"and,required"`
+	Or  param.Field[interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAnd) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAnd) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndUnion() {
+}
+
+// A query for which permissions you require
+//
+// Satisfied by [shared.UnionString],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndAnd],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndOr],
+// [V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAnd].
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndUnion interface {
+	ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndUnion()
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndAnd struct {
+	And param.Field[[]interface{}] `json:"and,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndAnd) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndAnd) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndUnion() {
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndOr struct {
+	Or param.Field[[]interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndOr) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrAndAndUnion() {
+}
+
+type V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrOr struct {
+	Or param.Field[[]interface{}] `json:"or,required"`
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrOr) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion() {
 }
 
 type V1KeyVerifyKeyNewParamsRatelimit struct {
