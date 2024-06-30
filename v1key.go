@@ -76,8 +76,7 @@ type V1KeysVerifyKeyResponse struct {
 	OwnerID string `json:"ownerId"`
 	// A list of all the permissions this key is connected to.
 	Permissions []string `json:"permissions"`
-	// The ratelimit configuration for this key. If this field is null or undefined,
-	// the key has no ratelimit.
+	// Multi ratelimits TODO:
 	Ratelimit V1KeysVerifyKeyResponseRatelimit `json:"ratelimit"`
 	// The number of requests that can be made with this key before it becomes invalid.
 	// If this field is null or undefined, the key has no request limit.
@@ -144,8 +143,7 @@ func (r V1KeysVerifyKeyResponseCode) IsKnown() bool {
 	return false
 }
 
-// The ratelimit configuration for this key. If this field is null or undefined,
-// the key has no ratelimit.
+// Multi ratelimits TODO:
 type V1KeysVerifyKeyResponseRatelimit struct {
 	// Maximum number of requests that can be made inside a window
 	Limit int64 `json:"limit,required"`

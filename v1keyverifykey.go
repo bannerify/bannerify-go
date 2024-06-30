@@ -48,6 +48,7 @@ type V1KeyVerifyKeyNewParams struct {
 	// Perform RBAC checks
 	Authorization param.Field[V1KeyVerifyKeyNewParamsAuthorization] `json:"authorization"`
 	Ratelimit     param.Field[V1KeyVerifyKeyNewParamsRatelimit]     `json:"ratelimit"`
+	Ratelimits    param.Field[[]V1KeyVerifyKeyNewParamsRatelimit]   `json:"ratelimits"`
 }
 
 func (r V1KeyVerifyKeyNewParams) MarshalJSON() (data []byte, err error) {
