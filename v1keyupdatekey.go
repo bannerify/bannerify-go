@@ -72,19 +72,22 @@ func (r V1KeyUpdateKeyNewParams) MarshalJSON() (data []byte, err error) {
 
 // Unkey comes with per-key ratelimiting out of the box. Set `null` to disable.
 type V1KeyUpdateKeyNewParamsRatelimit struct {
-	// The total amount of burstable requests.
+	// The total amount of requests allowed in a single window.
 	Limit param.Field[int64] `json:"limit,required"`
-	// Determines the speed at which tokens are refilled, in milliseconds.
-	RefillInterval param.Field[int64] `json:"refillInterval,required"`
-	// Asnyc ratelimiting doesn't add latency, while sync ratelimiting is more
+	// Asnyc ratelimiting doesn't add latency, while sync ratelimiting is slightly more
 	// accurate.
 	Async param.Field[bool] `json:"async"`
-	// The duration of each ratelimit window, in milliseconds.
+	// The duration of each ratelimit window, in milliseconds. This field will become
+	// required in a future version.
 	Duration param.Field[int64] `json:"duration"`
-	// How many tokens to refill during each refillInterval.
+	// Determines the speed at which tokens are refilled, in milliseconds. Deprecated,
+	// use 'duration'
+	RefillInterval param.Field[int64] `json:"refillInterval"`
+	// How many tokens to refill during each refillInterval. Deprecated, use 'limit'
+	// instead.
 	RefillRate param.Field[int64] `json:"refillRate"`
 	// Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
-	// accurate.
+	// accurate. Deprecated, use 'async' instead
 	Type param.Field[V1KeyUpdateKeyNewParamsRatelimitType] `json:"type"`
 }
 
@@ -93,7 +96,7 @@ func (r V1KeyUpdateKeyNewParamsRatelimit) MarshalJSON() (data []byte, err error)
 }
 
 // Fast ratelimiting doesn't add latency, while consistent ratelimiting is more
-// accurate.
+// accurate. Deprecated, use 'async' instead
 type V1KeyUpdateKeyNewParamsRatelimitType string
 
 const (
