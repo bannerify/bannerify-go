@@ -52,6 +52,7 @@ type V1KeysVerifyKeyResponse struct {
 	//   - DISABLED: the key is disabled
 	//   - INSUFFICIENT_PERMISSIONS: you do not have the required permissions to perform
 	//     this action
+	//   - EXPIRED: The key was only valid for a certain time and has expired.
 	Code V1KeysVerifyKeyResponseCode `json:"code,required"`
 	// Whether the key is valid or not. A key could be invalid for a number of reasons,
 	// for example if it has expired, has no more verifications left or if it has been
@@ -122,6 +123,7 @@ func (r v1KeysVerifyKeyResponseJSON) RawJSON() string {
 //   - DISABLED: the key is disabled
 //   - INSUFFICIENT_PERMISSIONS: you do not have the required permissions to perform
 //     this action
+//   - EXPIRED: The key was only valid for a certain time and has expired.
 type V1KeysVerifyKeyResponseCode string
 
 const (
@@ -133,11 +135,12 @@ const (
 	V1KeysVerifyKeyResponseCodeUnauthorized            V1KeysVerifyKeyResponseCode = "UNAUTHORIZED"
 	V1KeysVerifyKeyResponseCodeDisabled                V1KeysVerifyKeyResponseCode = "DISABLED"
 	V1KeysVerifyKeyResponseCodeInsufficientPermissions V1KeysVerifyKeyResponseCode = "INSUFFICIENT_PERMISSIONS"
+	V1KeysVerifyKeyResponseCodeExpired                 V1KeysVerifyKeyResponseCode = "EXPIRED"
 )
 
 func (r V1KeysVerifyKeyResponseCode) IsKnown() bool {
 	switch r {
-	case V1KeysVerifyKeyResponseCodeValid, V1KeysVerifyKeyResponseCodeNotFound, V1KeysVerifyKeyResponseCodeForbidden, V1KeysVerifyKeyResponseCodeUsageExceeded, V1KeysVerifyKeyResponseCodeRateLimited, V1KeysVerifyKeyResponseCodeUnauthorized, V1KeysVerifyKeyResponseCodeDisabled, V1KeysVerifyKeyResponseCodeInsufficientPermissions:
+	case V1KeysVerifyKeyResponseCodeValid, V1KeysVerifyKeyResponseCodeNotFound, V1KeysVerifyKeyResponseCodeForbidden, V1KeysVerifyKeyResponseCodeUsageExceeded, V1KeysVerifyKeyResponseCodeRateLimited, V1KeysVerifyKeyResponseCodeUnauthorized, V1KeysVerifyKeyResponseCodeDisabled, V1KeysVerifyKeyResponseCodeInsufficientPermissions, V1KeysVerifyKeyResponseCodeExpired:
 		return true
 	}
 	return false

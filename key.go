@@ -158,11 +158,12 @@ const (
 	KeyVerifyResponseCodeUnauthorized            KeyVerifyResponseCode = "UNAUTHORIZED"
 	KeyVerifyResponseCodeDisabled                KeyVerifyResponseCode = "DISABLED"
 	KeyVerifyResponseCodeInsufficientPermissions KeyVerifyResponseCode = "INSUFFICIENT_PERMISSIONS"
+	KeyVerifyResponseCodeExpired                 KeyVerifyResponseCode = "EXPIRED"
 )
 
 func (r KeyVerifyResponseCode) IsKnown() bool {
 	switch r {
-	case KeyVerifyResponseCodeNotFound, KeyVerifyResponseCodeForbidden, KeyVerifyResponseCodeUsageExceeded, KeyVerifyResponseCodeRateLimited, KeyVerifyResponseCodeUnauthorized, KeyVerifyResponseCodeDisabled, KeyVerifyResponseCodeInsufficientPermissions:
+	case KeyVerifyResponseCodeNotFound, KeyVerifyResponseCodeForbidden, KeyVerifyResponseCodeUsageExceeded, KeyVerifyResponseCodeRateLimited, KeyVerifyResponseCodeUnauthorized, KeyVerifyResponseCodeDisabled, KeyVerifyResponseCodeInsufficientPermissions, KeyVerifyResponseCodeExpired:
 		return true
 	}
 	return false
