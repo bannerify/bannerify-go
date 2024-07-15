@@ -28,7 +28,7 @@ func TestV1KeyCreateKeyNewWithOptionalParams(t *testing.T) {
 		APIID:       bannerify.F("api_123"),
 		ByteLength:  bannerify.F(int64(16)),
 		Enabled:     bannerify.F(false),
-		Environment: bannerify.F("string"),
+		Environment: bannerify.F("environment"),
 		Expires:     bannerify.F(int64(1623869797161)),
 		Meta: bannerify.F(map[string]interface{}{
 			"billingTier": "PRO",
@@ -37,7 +37,7 @@ func TestV1KeyCreateKeyNewWithOptionalParams(t *testing.T) {
 		Name:        bannerify.F("my key"),
 		OwnerID:     bannerify.F("team_123"),
 		Permissions: bannerify.F([]string{"domains.create_record", "say_hello"}),
-		Prefix:      bannerify.F("string"),
+		Prefix:      bannerify.F("prefix"),
 		Ratelimit: bannerify.F(bannerify.V1KeyCreateKeyNewParamsRatelimit{
 			Async:          bannerify.F(true),
 			Type:           bannerify.F(bannerify.V1KeyCreateKeyNewParamsRatelimitTypeFast),

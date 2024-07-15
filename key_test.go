@@ -34,7 +34,7 @@ func TestKeyNewWithOptionalParams(t *testing.T) {
 		}),
 		Name:    bannerify.F("my key"),
 		OwnerID: bannerify.F("team_123"),
-		Prefix:  bannerify.F("string"),
+		Prefix:  bannerify.F("prefix"),
 		Ratelimit: bannerify.F(bannerify.KeyNewParamsRatelimit{
 			Type:           bannerify.F(bannerify.KeyNewParamsRatelimitTypeFast),
 			Limit:          bannerify.F(int64(10)),

@@ -37,6 +37,9 @@ func TestV1KeyUpdateKeyNewWithOptionalParams(t *testing.T) {
 		}),
 		Name:    bannerify.F("Customer X"),
 		OwnerID: bannerify.F("user_123"),
+		Permissions: bannerify.F([]bannerify.V1KeyUpdateKeyNewParamsPermissionUnion{bannerify.V1KeyUpdateKeyNewParamsPermissionsObject{
+			ID: bannerify.F("xxx"),
+		}}),
 		Ratelimit: bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRatelimit{
 			Type:           bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRatelimitTypeFast),
 			Async:          bannerify.F(true),
@@ -50,6 +53,9 @@ func TestV1KeyUpdateKeyNewWithOptionalParams(t *testing.T) {
 			Amount:   bannerify.F(int64(100)),
 		}),
 		Remaining: bannerify.F(1000.000000),
+		Roles: bannerify.F([]bannerify.V1KeyUpdateKeyNewParamsRoleUnion{bannerify.V1KeyUpdateKeyNewParamsRolesObject{
+			ID: bannerify.F("xxx"),
+		}}),
 	})
 	if err != nil {
 		var apierr *bannerify.Error
