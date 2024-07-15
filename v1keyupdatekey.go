@@ -60,7 +60,7 @@ type V1KeyUpdateKeyNewParams struct {
 	// The permissions you want to set for this key. This overwrites all existing
 	// permissions. Setting permissions requires the `rbac.*.add_permission_to_key`
 	// permission.
-	Permissions param.Field[[]V1KeyUpdateKeyNewParamsPermissionUnion] `json:"permissions"`
+	Permissions param.Field[[]V1KeyUpdateKeyNewParamsPermission] `json:"permissions"`
 	// Unkey comes with per-key ratelimiting out of the box. Set `null` to disable.
 	Ratelimit param.Field[V1KeyUpdateKeyNewParamsRatelimit] `json:"ratelimit"`
 	// Unkey enables you to refill verifications for each key at regular intervals.
@@ -70,7 +70,7 @@ type V1KeyUpdateKeyNewParams struct {
 	Remaining param.Field[float64] `json:"remaining"`
 	// The roles you want to set for this key. This overwrites all existing roles.
 	// Setting roles requires the `rbac.*.add_role_to_key` permission.
-	Roles param.Field[[]V1KeyUpdateKeyNewParamsRoleUnion] `json:"roles"`
+	Roles param.Field[[]V1KeyUpdateKeyNewParamsRole] `json:"roles"`
 }
 
 func (r V1KeyUpdateKeyNewParams) MarshalJSON() (data []byte, err error) {
@@ -78,38 +78,21 @@ func (r V1KeyUpdateKeyNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type V1KeyUpdateKeyNewParamsPermission struct {
-	// The id of the permissions.
+	// The id of the permission. Provide either `id` or `name`. If both are provided
+	// `id` is used.
 	ID param.Field[string] `json:"id"`
-	// The name of the permissions
-	Name param.Field[string] `json:"name"`
-	// Set to true to automatically create the permissions they do not exist yet.
-	// Autocreating permissions requires your root key to have the
-	// `rbac.*.create_permission` permission, otherwise the request will get rejected
+	// Set to true to automatically create the permissions they do not exist yet. Only
+	// works when specifying `name`. Autocreating permissions requires your root key to
+	// have the `rbac.*.create_permission` permission, otherwise the request will get
+	// rejected
 	Create param.Field[bool] `json:"create"`
+	// Identify the permission via its name. Provide either `id` or `name`. If both are
+	// provided `id` is used.
+	Name param.Field[string] `json:"name"`
 }
 
 func (r V1KeyUpdateKeyNewParamsPermission) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-func (r V1KeyUpdateKeyNewParamsPermission) implementsV1KeyUpdateKeyNewParamsPermissionUnion() {}
-
-// Satisfied by [V1KeyUpdateKeyNewParamsPermissionsObject],
-// [V1KeyUpdateKeyNewParamsPermissionsObject], [V1KeyUpdateKeyNewParamsPermission].
-type V1KeyUpdateKeyNewParamsPermissionUnion interface {
-	implementsV1KeyUpdateKeyNewParamsPermissionUnion()
-}
-
-type V1KeyUpdateKeyNewParamsPermissionsObject struct {
-	// The id of the permissions.
-	ID param.Field[string] `json:"id,required"`
-}
-
-func (r V1KeyUpdateKeyNewParamsPermissionsObject) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-func (r V1KeyUpdateKeyNewParamsPermissionsObject) implementsV1KeyUpdateKeyNewParamsPermissionUnion() {
 }
 
 // Unkey comes with per-key ratelimiting out of the box. Set `null` to disable.
@@ -186,35 +169,18 @@ func (r V1KeyUpdateKeyNewParamsRefillInterval) IsKnown() bool {
 }
 
 type V1KeyUpdateKeyNewParamsRole struct {
-	// The id of the role.
+	// The id of the role. Provide either `id` or `name`. If both are provided `id` is
+	// used.
 	ID param.Field[string] `json:"id"`
-	// The name of the role
-	Name param.Field[string] `json:"name"`
-	// Set to true to automatically create the permissions they do not exist yet.
-	// Autocreating roles requires your root key to have the `rbac.*.create_role`
-	// permission, otherwise the request will get rejected
+	// Set to true to automatically create the permissions they do not exist yet. Only
+	// works when specifying `name`. Autocreating roles requires your root key to have
+	// the `rbac.*.create_role` permission, otherwise the request will get rejected
 	Create param.Field[bool] `json:"create"`
+	// Identify the role via its name. Provide either `id` or `name`. If both are
+	// provided `id` is used.
+	Name param.Field[string] `json:"name"`
 }
 
 func (r V1KeyUpdateKeyNewParamsRole) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
-
-func (r V1KeyUpdateKeyNewParamsRole) implementsV1KeyUpdateKeyNewParamsRoleUnion() {}
-
-// Satisfied by [V1KeyUpdateKeyNewParamsRolesObject],
-// [V1KeyUpdateKeyNewParamsRolesObject], [V1KeyUpdateKeyNewParamsRole].
-type V1KeyUpdateKeyNewParamsRoleUnion interface {
-	implementsV1KeyUpdateKeyNewParamsRoleUnion()
-}
-
-type V1KeyUpdateKeyNewParamsRolesObject struct {
-	// The id of the role.
-	ID param.Field[string] `json:"id,required"`
-}
-
-func (r V1KeyUpdateKeyNewParamsRolesObject) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-func (r V1KeyUpdateKeyNewParamsRolesObject) implementsV1KeyUpdateKeyNewParamsRoleUnion() {}

@@ -37,8 +37,18 @@ func TestV1KeyUpdateKeyNewWithOptionalParams(t *testing.T) {
 		}),
 		Name:    bannerify.F("Customer X"),
 		OwnerID: bannerify.F("user_123"),
-		Permissions: bannerify.F([]bannerify.V1KeyUpdateKeyNewParamsPermissionUnion{bannerify.V1KeyUpdateKeyNewParamsPermissionsObject{
-			ID: bannerify.F("xxx"),
+		Permissions: bannerify.F([]bannerify.V1KeyUpdateKeyNewParamsPermission{{
+			ID:     bannerify.F("perm_123"),
+			Name:   bannerify.F("x"),
+			Create: bannerify.F(true),
+		}, {
+			ID:     bannerify.F("xxx"),
+			Name:   bannerify.F("dns.record.create"),
+			Create: bannerify.F(true),
+		}, {
+			ID:     bannerify.F("xxx"),
+			Name:   bannerify.F("dns.record.delete"),
+			Create: bannerify.F(true),
 		}}),
 		Ratelimit: bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRatelimit{
 			Type:           bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRatelimitTypeFast),
@@ -53,8 +63,18 @@ func TestV1KeyUpdateKeyNewWithOptionalParams(t *testing.T) {
 			Amount:   bannerify.F(int64(100)),
 		}),
 		Remaining: bannerify.F(1000.000000),
-		Roles: bannerify.F([]bannerify.V1KeyUpdateKeyNewParamsRoleUnion{bannerify.V1KeyUpdateKeyNewParamsRolesObject{
-			ID: bannerify.F("xxx"),
+		Roles: bannerify.F([]bannerify.V1KeyUpdateKeyNewParamsRole{{
+			ID:     bannerify.F("perm_123"),
+			Name:   bannerify.F("x"),
+			Create: bannerify.F(true),
+		}, {
+			ID:     bannerify.F("xxx"),
+			Name:   bannerify.F("dns.record.create"),
+			Create: bannerify.F(true),
+		}, {
+			ID:     bannerify.F("xxx"),
+			Name:   bannerify.F("dns.record.delete"),
+			Create: bannerify.F(true),
 		}}),
 	})
 	if err != nil {
