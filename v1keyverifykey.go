@@ -47,8 +47,13 @@ type V1KeyVerifyKeyNewParams struct {
 	APIID param.Field[string] `json:"apiId"`
 	// Perform RBAC checks
 	Authorization param.Field[V1KeyVerifyKeyNewParamsAuthorization] `json:"authorization"`
-	Ratelimit     param.Field[V1KeyVerifyKeyNewParamsRatelimit]     `json:"ratelimit"`
-	Ratelimits    param.Field[[]V1KeyVerifyKeyNewParamsRatelimit]   `json:"ratelimits"`
+	// Use 'ratelimits' with `[{ name: "default", cost: 2}]`
+	Ratelimit param.Field[V1KeyVerifyKeyNewParamsRatelimit] `json:"ratelimit"`
+	// You can check against multiple ratelimits when verifying a key. Let's say you
+	// are building an app that uses AI under the hood and you want to limit your
+	// customers to 500 requests per hour, but also ensure they use up less than 20k
+	// tokens per day.
+	Ratelimits param.Field[[]V1KeyVerifyKeyNewParamsRatelimit] `json:"ratelimits"`
 }
 
 func (r V1KeyVerifyKeyNewParams) MarshalJSON() (data []byte, err error) {
@@ -290,6 +295,7 @@ func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrOr) MarshalJSON() (da
 func (r V1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrOr) ImplementsV1KeyVerifyKeyNewParamsAuthorizationPermissionsOrOrUnion() {
 }
 
+// Use 'ratelimits' with `[{ name: "default", cost: 2}]`
 type V1KeyVerifyKeyNewParamsRatelimit struct {
 	// Override how many tokens are deducted during the ratelimit operation.
 	Cost param.Field[int64] `json:"cost"`
