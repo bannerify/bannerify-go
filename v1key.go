@@ -65,6 +65,8 @@ type V1KeysVerifyKeyResponse struct {
 	// The unix timestamp in milliseconds when the key will expire. If this field is
 	// null or undefined, the key is not expiring.
 	Expires int64 `json:"expires"`
+	// The associated identity of this key.
+	Identity V1KeysVerifyKeyResponseIdentity `json:"identity"`
 	// The id of the key
 	KeyID string `json:"keyId"`
 	// Any additional metadata you want to store with the key
@@ -94,6 +96,7 @@ type v1KeysVerifyKeyResponseJSON struct {
 	Enabled     apijson.Field
 	Environment apijson.Field
 	Expires     apijson.Field
+	Identity    apijson.Field
 	KeyID       apijson.Field
 	Meta        apijson.Field
 	Name        apijson.Field
@@ -145,6 +148,32 @@ func (r V1KeysVerifyKeyResponseCode) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+// The associated identity of this key.
+type V1KeysVerifyKeyResponseIdentity struct {
+	ID         string                              `json:"id,required"`
+	ExternalID string                              `json:"externalId,required"`
+	Meta       map[string]interface{}              `json:"meta,required"`
+	JSON       v1KeysVerifyKeyResponseIdentityJSON `json:"-"`
+}
+
+// v1KeysVerifyKeyResponseIdentityJSON contains the JSON metadata for the struct
+// [V1KeysVerifyKeyResponseIdentity]
+type v1KeysVerifyKeyResponseIdentityJSON struct {
+	ID          apijson.Field
+	ExternalID  apijson.Field
+	Meta        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *V1KeysVerifyKeyResponseIdentity) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r v1KeysVerifyKeyResponseIdentityJSON) RawJSON() string {
+	return r.raw
 }
 
 // The ratelimit configuration for this key. If this field is null or undefined,
