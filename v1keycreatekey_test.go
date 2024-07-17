@@ -30,6 +30,7 @@ func TestV1KeyCreateKeyNewWithOptionalParams(t *testing.T) {
 		Enabled:     bannerify.F(false),
 		Environment: bannerify.F("environment"),
 		Expires:     bannerify.F(int64(1623869797161)),
+		ExternalID:  bannerify.F("team_123"),
 		Meta: bannerify.F(map[string]interface{}{
 			"billingTier": "PRO",
 			"trialEnds":   "2023-06-16T17:16:37.161Z",

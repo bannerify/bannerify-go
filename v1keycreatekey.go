@@ -87,14 +87,16 @@ type V1KeyCreateKeyNewParams struct {
 	// Keys expire they will automatically be disabled and are no longer valid unless
 	// you enable them again.
 	Expires param.Field[int64] `json:"expires"`
+	// Your user's Id. This will provide a link between Unkey and your customer record.
+	// When validating a key, we will return this back to you, so you can clearly
+	// identify your user from their api key.
+	ExternalID param.Field[string] `json:"externalId"`
 	// This is a place for dynamic meta data, anything that feels useful for you should
 	// go here
 	Meta param.Field[map[string]interface{}] `json:"meta"`
 	// The name for your Key. This is not customer facing.
 	Name param.Field[string] `json:"name"`
-	// Your user’s Id. This will provide a link between Unkey and your customer record.
-	// When validating a key, we will return this back to you, so you can clearly
-	// identify your user from their api key.
+	// Deprecated, use `externalId`
 	OwnerID param.Field[string] `json:"ownerId"`
 	// A list of permissions that this key should have. If the permission does not
 	// exist, an error is thrown
