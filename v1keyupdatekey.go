@@ -48,7 +48,7 @@ type V1KeyUpdateKeyNewParams struct {
 	Enabled param.Field[bool] `json:"enabled"`
 	// The unix timestamp in milliseconds when the key will expire. If this field is
 	// null or undefined, the key is not expiring.
-	Expires param.Field[float64] `json:"expires"`
+	Expires param.Field[int64] `json:"expires"`
 	// Any additional metadata you want to store with the key
 	Meta param.Field[map[string]interface{}] `json:"meta"`
 	// The name of the key
@@ -67,7 +67,7 @@ type V1KeyUpdateKeyNewParams struct {
 	Refill param.Field[V1KeyUpdateKeyNewParamsRefill] `json:"refill"`
 	// The number of requests that can be made with this key before it becomes invalid.
 	// Set `null` to disable.
-	Remaining param.Field[float64] `json:"remaining"`
+	Remaining param.Field[int64] `json:"remaining"`
 	// The roles you want to set for this key. This overwrites all existing roles.
 	// Setting roles requires the `rbac.*.add_role_to_key` permission.
 	Roles param.Field[[]V1KeyUpdateKeyNewParamsRole] `json:"roles"`

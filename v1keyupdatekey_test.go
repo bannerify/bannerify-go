@@ -27,7 +27,7 @@ func TestV1KeyUpdateKeyNewWithOptionalParams(t *testing.T) {
 	_, err := client.V1.Keys.UpdateKey.New(context.TODO(), bannerify.V1KeyUpdateKeyNewParams{
 		KeyID:   bannerify.F("key_123"),
 		Enabled: bannerify.F(true),
-		Expires: bannerify.F(0.000000),
+		Expires: bannerify.F(int64(0)),
 		Meta: bannerify.F(map[string]interface{}{
 			"roles": map[string]interface{}{
 				"0": "admin",
@@ -62,7 +62,7 @@ func TestV1KeyUpdateKeyNewWithOptionalParams(t *testing.T) {
 			Interval: bannerify.F(bannerify.V1KeyUpdateKeyNewParamsRefillIntervalDaily),
 			Amount:   bannerify.F(int64(100)),
 		}),
-		Remaining: bannerify.F(1000.000000),
+		Remaining: bannerify.F(int64(1000)),
 		Roles: bannerify.F([]bannerify.V1KeyUpdateKeyNewParamsRole{{
 			ID:     bannerify.F("perm_123"),
 			Name:   bannerify.F("x"),

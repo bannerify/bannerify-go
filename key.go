@@ -87,13 +87,13 @@ type KeyVerifyResponse struct {
 	//     this action
 	Code KeyVerifyResponseCode `json:"code"`
 	// The unix timestamp in milliseconds when the key was created
-	CreatedAt float64 `json:"createdAt"`
+	CreatedAt int64 `json:"createdAt"`
 	// The unix timestamp in milliseconds when the key was deleted. We don't delete the
 	// key outright, you can restore it later.
-	DeletedAt float64 `json:"deletedAt"`
+	DeletedAt int64 `json:"deletedAt"`
 	// The unix timestamp in milliseconds when the key will expire. If this field is
 	// null or undefined, the key is not expiring.
-	Expires float64 `json:"expires"`
+	Expires int64 `json:"expires"`
 	// The id of the key
 	KeyID string `json:"keyId"`
 	// Any additional metadata you want to store with the key
@@ -109,7 +109,7 @@ type KeyVerifyResponse struct {
 	Ratelimit KeyVerifyResponseRatelimit `json:"ratelimit"`
 	// The number of requests that can be made with this key before it becomes invalid.
 	// If this field is null or undefined, the key has no request limit.
-	Remaining float64               `json:"remaining"`
+	Remaining int64                 `json:"remaining"`
 	JSON      keyVerifyResponseJSON `json:"-"`
 }
 
@@ -173,11 +173,11 @@ func (r KeyVerifyResponseCode) IsKnown() bool {
 // the key has no ratelimit.
 type KeyVerifyResponseRatelimit struct {
 	// Maximum number of requests that can be made inside a window
-	Limit float64 `json:"limit,required"`
+	Limit int64 `json:"limit,required"`
 	// Remaining requests after this verification
-	Remaining float64 `json:"remaining,required"`
+	Remaining int64 `json:"remaining,required"`
 	// Unix timestamp in milliseconds when the ratelimit will reset
-	Reset float64                        `json:"reset,required"`
+	Reset int64                          `json:"reset,required"`
 	JSON  keyVerifyResponseRatelimitJSON `json:"-"`
 }
 

@@ -37,13 +37,13 @@ func TestV1KeyVerifyKeyNewWithOptionalParams(t *testing.T) {
 		Ratelimits: bannerify.F([]bannerify.V1KeyVerifyKeyNewParamsRatelimit{{
 			Name:     bannerify.F("requests"),
 			Cost:     bannerify.F(int64(0)),
-			Limit:    bannerify.F(500.000000),
-			Duration: bannerify.F(3600000.000000),
+			Limit:    bannerify.F(int64(500)),
+			Duration: bannerify.F(int64(3600000)),
 		}, {
 			Name:     bannerify.F("tokens"),
 			Cost:     bannerify.F(int64(0)),
-			Limit:    bannerify.F(20000.000000),
-			Duration: bannerify.F(86400000.000000),
+			Limit:    bannerify.F(int64(20000)),
+			Duration: bannerify.F(int64(86400000)),
 		}}),
 	})
 	if err != nil {
