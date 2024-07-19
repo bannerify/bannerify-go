@@ -74,7 +74,7 @@ type APIKeyListResponseKey struct {
 	// The id of the key
 	ID string `json:"id,required"`
 	// The unix timestamp in milliseconds when the key was created
-	CreatedAt float64 `json:"createdAt,required"`
+	CreatedAt int64 `json:"createdAt,required"`
 	// The first few characters of the key to visually identify it
 	Start string `json:"start,required"`
 	// The id of the workspace that owns the key
@@ -83,12 +83,12 @@ type APIKeyListResponseKey struct {
 	APIID string `json:"apiId"`
 	// The unix timestamp in milliseconds when the key was deleted. We don't delete the
 	// key outright, you can restore it later.
-	DeletedAt float64 `json:"deletedAt"`
+	DeletedAt int64 `json:"deletedAt"`
 	// Sets if key is enabled or disabled. Disabled keys are not valid.
 	Enabled bool `json:"enabled"`
 	// The unix timestamp in milliseconds when the key will expire. If this field is
 	// null or undefined, the key is not expiring.
-	Expires float64 `json:"expires"`
+	Expires int64 `json:"expires"`
 	// Any additional metadata you want to store with the key
 	Meta map[string]interface{} `json:"meta"`
 	// The name of the key, give keys a name to easily identify their purpose
@@ -108,11 +108,11 @@ type APIKeyListResponseKey struct {
 	Refill APIKeyListResponseKeysRefill `json:"refill"`
 	// The number of requests that can be made with this key before it becomes invalid.
 	// If this field is null or undefined, the key has no request limit.
-	Remaining float64 `json:"remaining"`
+	Remaining int64 `json:"remaining"`
 	// All roles this key belongs to
 	Roles []string `json:"roles"`
 	// The unix timestamp in milliseconds when the key was last updated
-	UpdatedAt float64                   `json:"updatedAt"`
+	UpdatedAt int64                     `json:"updatedAt"`
 	JSON      apiKeyListResponseKeyJSON `json:"-"`
 }
 
@@ -212,7 +212,7 @@ type APIKeyListResponseKeysRefill struct {
 	// Determines the rate at which verifications will be refilled.
 	Interval APIKeyListResponseKeysRefillInterval `json:"interval,required"`
 	// The unix timestamp in miliseconds when the key was last refilled.
-	LastRefillAt float64                          `json:"lastRefillAt"`
+	LastRefillAt int64                            `json:"lastRefillAt"`
 	JSON         apiKeyListResponseKeysRefillJSON `json:"-"`
 }
 

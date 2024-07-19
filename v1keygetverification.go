@@ -63,13 +63,13 @@ func (r v1KeyGetVerificationListResponseJSON) RawJSON() string {
 
 type V1KeyGetVerificationListResponseVerification struct {
 	// The number of requests that were rate limited
-	RateLimited float64 `json:"rateLimited,required"`
+	RateLimited int64 `json:"rateLimited,required"`
 	// The number of successful requests
-	Success float64 `json:"success,required"`
+	Success int64 `json:"success,required"`
 	// The timestamp of the usage data
 	Time int64 `json:"time,required"`
 	// The number of requests that exceeded the usage limit
-	UsageExceeded float64                                          `json:"usageExceeded,required"`
+	UsageExceeded int64                                            `json:"usageExceeded,required"`
 	JSON          v1KeyGetVerificationListResponseVerificationJSON `json:"-"`
 }
 
