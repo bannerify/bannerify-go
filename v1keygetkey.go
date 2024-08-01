@@ -59,6 +59,8 @@ type V1KeyGetKeyGetResponse struct {
 	// The unix timestamp in milliseconds when the key will expire. If this field is
 	// null or undefined, the key is not expiring.
 	Expires int64 `json:"expires"`
+	// The identity of the key
+	Identity V1KeyGetKeyGetResponseIdentity `json:"identity"`
 	// Any additional metadata you want to store with the key
 	Meta map[string]interface{} `json:"meta"`
 	// The name of the key, give keys a name to easily identify their purpose
@@ -97,6 +99,7 @@ type v1KeyGetKeyGetResponseJSON struct {
 	DeletedAt   apijson.Field
 	Enabled     apijson.Field
 	Expires     apijson.Field
+	Identity    apijson.Field
 	Meta        apijson.Field
 	Name        apijson.Field
 	OwnerID     apijson.Field
@@ -116,6 +119,35 @@ func (r *V1KeyGetKeyGetResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r v1KeyGetKeyGetResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// The identity of the key
+type V1KeyGetKeyGetResponseIdentity struct {
+	// The id of the identity
+	ID string `json:"id,required"`
+	// The external id of the identity
+	ExternalID string `json:"externalId,required"`
+	// Any additional metadata attached to the identity
+	Meta map[string]interface{}             `json:"meta"`
+	JSON v1KeyGetKeyGetResponseIdentityJSON `json:"-"`
+}
+
+// v1KeyGetKeyGetResponseIdentityJSON contains the JSON metadata for the struct
+// [V1KeyGetKeyGetResponseIdentity]
+type v1KeyGetKeyGetResponseIdentityJSON struct {
+	ID          apijson.Field
+	ExternalID  apijson.Field
+	Meta        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *V1KeyGetKeyGetResponseIdentity) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r v1KeyGetKeyGetResponseIdentityJSON) RawJSON() string {
 	return r.raw
 }
 
