@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/stainless-sdks/bannerify-go/internal/apijson"
+	"github.com/bannerify/bannerify-go/internal/apijson"
 )
 
 // Error represents an error that originates from the API, i.e. when a request is
