@@ -8,10 +8,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/bannerify-go"
-	"github.com/stainless-sdks/bannerify-go/internal/testutil"
-	"github.com/stainless-sdks/bannerify-go/option"
-	"github.com/stainless-sdks/bannerify-go/shared"
+	"github.com/bannerify/bannerify-go"
+	"github.com/bannerify/bannerify-go/internal/testutil"
+	"github.com/bannerify/bannerify-go/option"
+	"github.com/bannerify/bannerify-go/shared"
 )
 
 func TestV1KeyVerifyKeyNewWithOptionalParams(t *testing.T) {

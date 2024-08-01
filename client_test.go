@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/bannerify-go"
-	"github.com/stainless-sdks/bannerify-go/internal"
-	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/bannerify/bannerify-go"
+	"github.com/bannerify/bannerify-go/internal"
+	"github.com/bannerify/bannerify-go/option"
 )
 
 type closureTransport struct {
