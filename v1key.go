@@ -3,8 +3,8 @@
 package bannerify
 
 import (
-	"github.com/stainless-sdks/bannerify-go/internal/apijson"
-	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/bannerify/bannerify-go/internal/apijson"
+	"github.com/bannerify/bannerify-go/option"
 )
 
 // V1KeyService contains methods and other services that help with interacting with

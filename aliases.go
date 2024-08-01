@@ -3,7 +3,7 @@
 package bannerify
 
 import (
-	"github.com/stainless-sdks/bannerify-go/internal/apierror"
+	"github.com/bannerify/bannerify-go/internal/apierror"
 )
 
 type Error = apierror.Error
