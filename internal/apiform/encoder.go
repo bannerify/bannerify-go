@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/stainless-sdks/bannerify-go/internal/param"
+	"github.com/bannerify/bannerify-go/internal/param"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc
