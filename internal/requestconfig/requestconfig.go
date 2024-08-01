@@ -17,10 +17,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/bannerify-go/internal"
-	"github.com/stainless-sdks/bannerify-go/internal/apierror"
-	"github.com/stainless-sdks/bannerify-go/internal/apiform"
-	"github.com/stainless-sdks/bannerify-go/internal/apiquery"
+	"github.com/bannerify/bannerify-go/internal"
+	"github.com/bannerify/bannerify-go/internal/apierror"
+	"github.com/bannerify/bannerify-go/internal/apiform"
+	"github.com/bannerify/bannerify-go/internal/apiquery"
 )
 
 func getDefaultHeaders() map[string]string {

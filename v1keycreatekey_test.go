@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/bannerify-go"
-	"github.com/stainless-sdks/bannerify-go/internal/testutil"
-	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/bannerify/bannerify-go"
+	"github.com/bannerify/bannerify-go/internal/testutil"
+	"github.com/bannerify/bannerify-go/option"
 )
 
 func TestV1KeyCreateKeyNewWithOptionalParams(t *testing.T) {
