@@ -3,7 +3,7 @@
 package bannerify
 
 import (
-	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/bannerify/bannerify-go/option"
 )
 
 // V1APIService contains methods and other services that help with interacting with
