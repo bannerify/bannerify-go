@@ -11,8 +11,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stainless-sdks/bannerify-go"
-	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/bannerify/bannerify-go"
+	"github.com/bannerify/bannerify-go/option"
 )
 
 func TestTemplateNewImageWithOptionalParams(t *testing.T) {
