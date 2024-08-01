@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/stainless-sdks/bannerify-go/internal/apijson"
-	"github.com/stainless-sdks/bannerify-go/internal/apiquery"
-	"github.com/stainless-sdks/bannerify-go/internal/param"
-	"github.com/stainless-sdks/bannerify-go/internal/requestconfig"
-	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/bannerify/bannerify-go/internal/apijson"
+	"github.com/bannerify/bannerify-go/internal/apiquery"
+	"github.com/bannerify/bannerify-go/internal/param"
+	"github.com/bannerify/bannerify-go/internal/requestconfig"
+	"github.com/bannerify/bannerify-go/option"
 )
 
 // TemplateService contains methods and other services that help with interacting

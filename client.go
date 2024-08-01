@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/stainless-sdks/bannerify-go/internal/requestconfig"
-	"github.com/stainless-sdks/bannerify-go/option"
+	"github.com/bannerify/bannerify-go/internal/requestconfig"
+	"github.com/bannerify/bannerify-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with
