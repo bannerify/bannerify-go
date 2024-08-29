@@ -33,6 +33,7 @@ func NewTemplateService(opts ...option.RequestOption) (r *TemplateService) {
 	return
 }
 
+// Create an image from a template
 func (r *TemplateService) NewImage(ctx context.Context, body TemplateNewImageParams, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/png")}, opts...)
@@ -41,6 +42,7 @@ func (r *TemplateService) NewImage(ctx context.Context, body TemplateNewImagePar
 	return
 }
 
+// Generate a signed URL for a template
 func (r *TemplateService) Signedurl(ctx context.Context, query TemplateSignedurlParams, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/png")}, opts...)
@@ -50,7 +52,6 @@ func (r *TemplateService) Signedurl(ctx context.Context, query TemplateSignedurl
 }
 
 type TemplateNewImageParams struct {
-	// The api key to use for this request
 	APIKey param.Field[string] `json:"apiKey,required"`
 	// Your template id
 	TemplateID param.Field[string] `json:"templateId,required"`
@@ -106,16 +107,18 @@ func (r TemplateNewImageParamsModification) MarshalJSON() (data []byte, err erro
 }
 
 type TemplateSignedurlParams struct {
-	// MD5 hash of the API key
-	APIKeyMd5 param.Field[string] `query:"apiKeyMd5,required"`
 	// SHA256 hash of the query params, read more at
 	// https://bannerify.co/docs/api#signing-requests
 	Sign param.Field[string] `query:"sign,required"`
 	// Your template id
 	TemplateID param.Field[string] `query:"templateId,required"`
 	// Only for debug purpose, it draws bounding box for each layer
-	Debug  param.Field[string]                        `query:"_debug"`
-	Format param.Field[TemplateSignedurlParamsFormat] `query:"format"`
+	Debug param.Field[string] `query:"_debug"`
+	// Sha256 hash of the API key (use this)
+	APIKeyHashed param.Field[string] `query:"apiKeyHashed"`
+	// MD5 hash of the API key
+	APIKeyMd5 param.Field[string]                        `query:"apiKeyMd5"`
+	Format    param.Field[TemplateSignedurlParamsFormat] `query:"format"`
 	// A JSON string of modifications object
 	Modifications param.Field[string] `query:"modifications"`
 	// By default, we cache the image in the CDN for 1 day to save your bandwidth, use

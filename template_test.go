@@ -27,7 +27,7 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	resp, err := client.Templates.NewImage(context.TODO(), bannerify.TemplateNewImageParams{
-		APIKey:     bannerify.F("key_xxxxxxxxx"),
+		APIKey:     bannerify.F("apiKey"),
 		TemplateID: bannerify.F("tpl_xxxxxxxxx"),
 		Debug:      bannerify.F("_debug"),
 		Format:     bannerify.F(bannerify.TemplateNewImageParamsFormatPng),
@@ -103,10 +103,11 @@ func TestTemplateSignedurlWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	resp, err := client.Templates.Signedurl(context.TODO(), bannerify.TemplateSignedurlParams{
-		APIKeyMd5:     bannerify.F("apiKeyMd5"),
 		Sign:          bannerify.F("sign"),
 		TemplateID:    bannerify.F("tpl_xxxxxxxxx"),
 		Debug:         bannerify.F("_debug"),
+		APIKeyHashed:  bannerify.F("apiKeyHashed"),
+		APIKeyMd5:     bannerify.F("apiKeyMd5"),
 		Format:        bannerify.F(bannerify.TemplateSignedurlParamsFormatPng),
 		Modifications: bannerify.F("modifications"),
 		Nocache:       bannerify.F("true"),
