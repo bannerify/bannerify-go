@@ -52,13 +52,13 @@ func main() {
 	client := bannerify.NewClient(
 		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("BANNERIFY_API_KEY")
 	)
-	infoGetResponse, err := client.Info.Get(context.TODO(), bannerify.InfoGetParams{
+	info, err := client.Info.Get(context.TODO(), bannerify.InfoGetParams{
 		APIKey: bannerify.F("REPLACE_ME"),
 	})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", infoGetResponse.ID)
+	fmt.Printf("%+v\n", info.ID)
 }
 
 ```
