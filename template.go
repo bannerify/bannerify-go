@@ -90,20 +90,91 @@ type TemplateNewImageParamsModification struct {
 	Chart param.Field[map[string]interface{}] `json:"chart"`
 	// The color for the modification
 	Color param.Field[string] `json:"color"`
+	// Table columns
+	Cols param.Field[[]TemplateNewImageParamsModificationsCol] `json:"cols"`
+	// Table height mode
+	HeightMode param.Field[TemplateNewImageParamsModificationsHeightMode] `json:"heightMode"`
 	// Modify the qrcode layer content with this field
 	Qrcode param.Field[string] `json:"qrcode"`
+	// Table rows
+	Rows param.Field[[]interface{}] `json:"rows"`
 	// The source image for the modification
 	Src param.Field[string] `json:"src"`
 	// Star value
 	Star param.Field[float64] `json:"star"`
 	// You can modify the text layer with this field
 	Text param.Field[string] `json:"text"`
+	// Table theme
+	Theme param.Field[TemplateNewImageParamsModificationsTheme] `json:"theme"`
 	// Set the visibility of the field
 	Visible param.Field[bool] `json:"visible"`
+	// Table width mode
+	WidthMode param.Field[TemplateNewImageParamsModificationsWidthMode] `json:"widthMode"`
 }
 
 func (r TemplateNewImageParamsModification) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Table column
+type TemplateNewImageParamsModificationsCol struct {
+	Caption param.Field[string] `json:"caption,required"`
+	Field   param.Field[string] `json:"field,required"`
+}
+
+func (r TemplateNewImageParamsModificationsCol) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Table height mode
+type TemplateNewImageParamsModificationsHeightMode string
+
+const (
+	TemplateNewImageParamsModificationsHeightModeStandard TemplateNewImageParamsModificationsHeightMode = "standard"
+	TemplateNewImageParamsModificationsHeightModeAdaptive TemplateNewImageParamsModificationsHeightMode = "adaptive"
+)
+
+func (r TemplateNewImageParamsModificationsHeightMode) IsKnown() bool {
+	switch r {
+	case TemplateNewImageParamsModificationsHeightModeStandard, TemplateNewImageParamsModificationsHeightModeAdaptive:
+		return true
+	}
+	return false
+}
+
+// Table theme
+type TemplateNewImageParamsModificationsTheme string
+
+const (
+	TemplateNewImageParamsModificationsThemeNone     TemplateNewImageParamsModificationsTheme = "NONE"
+	TemplateNewImageParamsModificationsThemeDefault  TemplateNewImageParamsModificationsTheme = "DEFAULT"
+	TemplateNewImageParamsModificationsThemeBright   TemplateNewImageParamsModificationsTheme = "BRIGHT"
+	TemplateNewImageParamsModificationsThemeSimplify TemplateNewImageParamsModificationsTheme = "SIMPLIFY"
+	TemplateNewImageParamsModificationsThemeArco     TemplateNewImageParamsModificationsTheme = "ARCO"
+)
+
+func (r TemplateNewImageParamsModificationsTheme) IsKnown() bool {
+	switch r {
+	case TemplateNewImageParamsModificationsThemeNone, TemplateNewImageParamsModificationsThemeDefault, TemplateNewImageParamsModificationsThemeBright, TemplateNewImageParamsModificationsThemeSimplify, TemplateNewImageParamsModificationsThemeArco:
+		return true
+	}
+	return false
+}
+
+// Table width mode
+type TemplateNewImageParamsModificationsWidthMode string
+
+const (
+	TemplateNewImageParamsModificationsWidthModeStandard TemplateNewImageParamsModificationsWidthMode = "standard"
+	TemplateNewImageParamsModificationsWidthModeAdaptive TemplateNewImageParamsModificationsWidthMode = "adaptive"
+)
+
+func (r TemplateNewImageParamsModificationsWidthMode) IsKnown() bool {
+	switch r {
+	case TemplateNewImageParamsModificationsWidthModeStandard, TemplateNewImageParamsModificationsWidthModeAdaptive:
+		return true
+	}
+	return false
 }
 
 type TemplateSignedurlParams struct {
