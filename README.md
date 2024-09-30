@@ -24,7 +24,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/bannerify/bannerify-go@v0.1.0-alpha.1'
+go get -u 'github.com/bannerify/bannerify-go@v0.1.0-alpha.2'
 ```
 
 <!-- x-release-please-end -->
@@ -52,13 +52,13 @@ func main() {
 	client := bannerify.NewClient(
 		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("BANNERIFY_API_KEY")
 	)
-	infoGetResponse, err := client.Info.Get(context.TODO(), bannerify.InfoGetParams{
+	info, err := client.Info.Get(context.TODO(), bannerify.InfoGetParams{
 		APIKey: bannerify.F("REPLACE_ME"),
 	})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", infoGetResponse.ID)
+	fmt.Printf("%+v\n", info.ID)
 }
 
 ```

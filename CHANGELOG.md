@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.0-alpha.2 (2024-09-30)
+
+Full Changelog: [v0.1.0-alpha.1...v0.1.0-alpha.2](https://github.com/bannerify/bannerify-go/compare/v0.1.0-alpha.1...v0.1.0-alpha.2)
+
+### Features
+
+* **api:** OpenAPI spec update via Stainless API ([#11](https://github.com/bannerify/bannerify-go/issues/11)) ([ce3a110](https://github.com/bannerify/bannerify-go/commit/ce3a1105d4d37790c116bafa60aecc72f9ec59cb))
+* **api:** OpenAPI spec update via Stainless API ([#14](https://github.com/bannerify/bannerify-go/issues/14)) ([2f0e682](https://github.com/bannerify/bannerify-go/commit/2f0e682476638508cc42427f43010c7a98056693))
+
+
+### Chores
+
+* **internal:** codegen related update ([#12](https://github.com/bannerify/bannerify-go/issues/12)) ([080d860](https://github.com/bannerify/bannerify-go/commit/080d8606af3ebb3c374f161253a7b3cea264e34b))
+
 ## 0.1.0-alpha.1 (2024-08-29)
 
 Full Changelog: [v0.0.1-alpha.1...v0.1.0-alpha.1](https://github.com/bannerify/bannerify-go/compare/v0.0.1-alpha.1...v0.1.0-alpha.1)
