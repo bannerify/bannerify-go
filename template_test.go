@@ -37,17 +37,8 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 			Chart: bannerify.F(map[string]interface{}{
 				"foo": "bar",
 			}),
-			Color: bannerify.F("#FF0000"),
-			Cols: bannerify.F([]bannerify.TemplateNewImageParamsModificationsCol{{
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}, {
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}, {
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}}),
+			Color:      bannerify.F("#FF0000"),
+			Columns:    bannerify.F([]string{"string", "string", "string"}),
 			HeightMode: bannerify.F(bannerify.TemplateNewImageParamsModificationsHeightModeStandard),
 			Qrcode:     bannerify.F("Some text"),
 			Rows:       bannerify.F([]interface{}{map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}}),
@@ -63,17 +54,8 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 			Chart: bannerify.F(map[string]interface{}{
 				"foo": "bar",
 			}),
-			Color: bannerify.F("#FF0000"),
-			Cols: bannerify.F([]bannerify.TemplateNewImageParamsModificationsCol{{
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}, {
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}, {
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}}),
+			Color:      bannerify.F("#FF0000"),
+			Columns:    bannerify.F([]string{"string", "string", "string"}),
 			HeightMode: bannerify.F(bannerify.TemplateNewImageParamsModificationsHeightModeStandard),
 			Qrcode:     bannerify.F("Some text"),
 			Rows:       bannerify.F([]interface{}{map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}}),
@@ -89,17 +71,8 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 			Chart: bannerify.F(map[string]interface{}{
 				"foo": "bar",
 			}),
-			Color: bannerify.F("#FF0000"),
-			Cols: bannerify.F([]bannerify.TemplateNewImageParamsModificationsCol{{
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}, {
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}, {
-				Caption: bannerify.F("caption"),
-				Field:   bannerify.F("field"),
-			}}),
+			Color:      bannerify.F("#FF0000"),
+			Columns:    bannerify.F([]string{"string", "string", "string"}),
 			HeightMode: bannerify.F(bannerify.TemplateNewImageParamsModificationsHeightModeStandard),
 			Qrcode:     bannerify.F("Some text"),
 			Rows:       bannerify.F([]interface{}{map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}}),
