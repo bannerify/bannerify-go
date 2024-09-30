@@ -91,7 +91,7 @@ type TemplateNewImageParamsModification struct {
 	// The color for the modification
 	Color param.Field[string] `json:"color"`
 	// Table columns
-	Cols param.Field[[]TemplateNewImageParamsModificationsCol] `json:"cols"`
+	Columns param.Field[[]string] `json:"columns"`
 	// Table height mode
 	HeightMode param.Field[TemplateNewImageParamsModificationsHeightMode] `json:"heightMode"`
 	// Modify the qrcode layer content with this field
@@ -113,16 +113,6 @@ type TemplateNewImageParamsModification struct {
 }
 
 func (r TemplateNewImageParamsModification) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Table column
-type TemplateNewImageParamsModificationsCol struct {
-	Caption param.Field[string] `json:"caption,required"`
-	Field   param.Field[string] `json:"field,required"`
-}
-
-func (r TemplateNewImageParamsModificationsCol) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
