@@ -24,11 +24,11 @@ func TestUsage(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	infoGetResponse, err := client.Info.Get(context.TODO(), bannerify.InfoGetParams{
+	info, err := client.Info.Get(context.TODO(), bannerify.InfoGetParams{
 		APIKey: bannerify.F("REPLACE_ME"),
 	})
 	if err != nil {
 		t.Error(err)
 	}
-	t.Logf("%+v\n", infoGetResponse.ID)
+	t.Logf("%+v\n", info.ID)
 }
