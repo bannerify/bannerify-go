@@ -169,7 +169,7 @@ func (r TemplateNewImageParamsModificationsWidthMode) IsKnown() bool {
 
 type TemplateSignedurlParams struct {
 	// SHA256 hash of the query params, read more at
-	// https://bannerify.co/docs/api#signing-requests
+	// https://documentation.bannerify.co/api#signing-requests
 	Sign param.Field[string] `query:"sign,required"`
 	// Your template id
 	TemplateID param.Field[string] `query:"templateId,required"`
