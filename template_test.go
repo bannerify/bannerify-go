@@ -39,7 +39,7 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 			}),
 			Color:      bannerify.F("#FF0000"),
 			Columns:    bannerify.F([]string{"string"}),
-			HeightMode: bannerify.F(bannerify.TemplateNewImageParamsModificationsHeightModeStandard),
+			HeightMode: bannerify.F(bannerify.TemplateNewImageParamsModificationsHeightModeAdaptive),
 			Qrcode:     bannerify.F("Some text"),
 			Rows:       bannerify.F([]interface{}{map[string]interface{}{}}),
 			Src:        bannerify.F("https://example.com/image.jpg"),
@@ -47,8 +47,19 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 			Text:       bannerify.F("Hello World"),
 			Theme:      bannerify.F(bannerify.TemplateNewImageParamsModificationsThemeNone),
 			Visible:    bannerify.F(true),
-			WidthMode:  bannerify.F(bannerify.TemplateNewImageParamsModificationsWidthModeStandard),
+			WidthMode:  bannerify.F(bannerify.TemplateNewImageParamsModificationsWidthModeAdaptive),
 		}}),
+		S3Config: bannerify.F(bannerify.TemplateNewImageParamsS3Config{
+			AccessKey: bannerify.F("accessKey"),
+			Bucket:    bannerify.F("my-images-bucket"),
+			EndPoint:  bannerify.F("s3.amazonaws.com"),
+			Region:    bannerify.F("us-east-1"),
+			SecretKey: bannerify.F("secretKey"),
+			CustomURL: bannerify.F("https://cdn.example.com/{key}"),
+			PathStyle: bannerify.F(false),
+			Port:      bannerify.F(443.000000),
+			UseSsl:    bannerify.F(true),
+		}),
 	})
 	if err != nil {
 		var apierr *bannerify.Error
@@ -92,6 +103,17 @@ func TestTemplateSignedurlWithOptionalParams(t *testing.T) {
 		Format:        bannerify.F(bannerify.TemplateSignedurlParamsFormatPng),
 		Modifications: bannerify.F("modifications"),
 		Nocache:       bannerify.F("true"),
+		S3Config: bannerify.F(bannerify.TemplateSignedurlParamsS3Config{
+			AccessKey: bannerify.F("accessKey"),
+			Bucket:    bannerify.F("my-images-bucket"),
+			EndPoint:  bannerify.F("s3.amazonaws.com"),
+			Region:    bannerify.F("us-east-1"),
+			SecretKey: bannerify.F("secretKey"),
+			CustomURL: bannerify.F("https://cdn.example.com/{key}"),
+			PathStyle: bannerify.F(false),
+			Port:      bannerify.F(443.000000),
+			UseSsl:    bannerify.F(true),
+		}),
 	})
 	if err != nil {
 		var apierr *bannerify.Error
