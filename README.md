@@ -2,10 +2,10 @@
 
 <a href="https://pkg.go.dev/github.com/bannerify/bannerify-go"><img src="https://pkg.go.dev/badge/github.com/bannerify/bannerify-go.svg" alt="Go Reference"></a>
 
-The Bannerify Go library provides convenient access to [the Bannerify REST
-API](https://docs.bannerify.com) from applications written in Go. The full API of this library can be found in [api.md](api.md).
+The Bannerify Go library provides convenient access to the [Bannerify REST API](https://docs.bannerify.com)
+from applications written in Go.
 
-It is generated with [Stainless](https://www.stainlessapi.com/).
+It is generated with [Stainless](https://www.stainless.com/).
 
 ## Installation
 
@@ -248,6 +248,30 @@ client.Info.Get(
 	},
 	option.WithMaxRetries(5),
 )
+```
+
+### Accessing raw response data (e.g. response headers)
+
+You can access the raw HTTP response data by using the `option.WithResponseInto()` request option. This is useful when
+you need to examine response headers, status codes, or other details.
+
+```go
+// Create a variable to store the HTTP response
+var response *http.Response
+info, err := client.Info.Get(
+	context.TODO(),
+	bannerify.InfoGetParams{
+		APIKey: bannerify.F("REPLACE_ME"),
+	},
+	option.WithResponseInto(&response),
+)
+if err != nil {
+	// handle error
+}
+fmt.Printf("%+v\n", info)
+
+fmt.Printf("Status Code: %d\n", response.StatusCode)
+fmt.Printf("Headers: %+#v\n", response.Header)
 ```
 
 ### Making custom/undocumented requests

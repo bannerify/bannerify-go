@@ -59,6 +59,9 @@ type TemplateNewImageParams struct {
 	Debug         param.Field[string]                               `json:"_debug"`
 	Format        param.Field[TemplateNewImageParamsFormat]         `json:"format"`
 	Modifications param.Field[[]TemplateNewImageParamsModification] `json:"modifications"`
+	// Optional custom S3 configuration. If provided, the image will be stored in your
+	// S3-compatible storage instead of the default Bannerify storage.
+	S3Config param.Field[TemplateNewImageParamsS3Config] `json:"s3Config"`
 }
 
 func (r TemplateNewImageParams) MarshalJSON() (data []byte, err error) {
@@ -167,6 +170,34 @@ func (r TemplateNewImageParamsModificationsWidthMode) IsKnown() bool {
 	return false
 }
 
+// Optional custom S3 configuration. If provided, the image will be stored in your
+// S3-compatible storage instead of the default Bannerify storage.
+type TemplateNewImageParamsS3Config struct {
+	// S3 access key
+	AccessKey param.Field[string] `json:"accessKey,required"`
+	// S3 bucket name
+	Bucket param.Field[string] `json:"bucket,required"`
+	// S3 endpoint URL (without protocol)
+	EndPoint param.Field[string] `json:"endPoint,required"`
+	// S3 region
+	Region param.Field[string] `json:"region,required"`
+	// S3 secret key
+	SecretKey param.Field[string] `json:"secretKey,required"`
+	// Custom URL template for accessing uploaded files. Use {key} as placeholder for
+	// the file key.
+	CustomURL param.Field[string] `json:"customUrl"`
+	// Whether to use path-style URLs
+	PathStyle param.Field[bool] `json:"pathStyle"`
+	// S3 endpoint port
+	Port param.Field[float64] `json:"port"`
+	// Whether to use SSL/TLS
+	UseSsl param.Field[bool] `json:"useSSL"`
+}
+
+func (r TemplateNewImageParamsS3Config) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type TemplateSignedurlParams struct {
 	// SHA256 hash of the query params, read more at
 	// https://documentation.bannerify.co/api#signing-requests
@@ -185,6 +216,9 @@ type TemplateSignedurlParams struct {
 	// By default, we cache the image in the CDN for 1 day to save your bandwidth, use
 	// this field to disable cache so you can get the latest image
 	Nocache param.Field[string] `query:"nocache"`
+	// Optional custom S3 configuration. If provided, the image will be stored in your
+	// S3-compatible storage instead of the default Bannerify storage.
+	S3Config param.Field[TemplateSignedurlParamsS3Config] `query:"s3Config"`
 }
 
 // URLQuery serializes [TemplateSignedurlParams]'s query parameters as
@@ -209,4 +243,37 @@ func (r TemplateSignedurlParamsFormat) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+// Optional custom S3 configuration. If provided, the image will be stored in your
+// S3-compatible storage instead of the default Bannerify storage.
+type TemplateSignedurlParamsS3Config struct {
+	// S3 access key
+	AccessKey param.Field[string] `query:"accessKey,required"`
+	// S3 bucket name
+	Bucket param.Field[string] `query:"bucket,required"`
+	// S3 endpoint URL (without protocol)
+	EndPoint param.Field[string] `query:"endPoint,required"`
+	// S3 region
+	Region param.Field[string] `query:"region,required"`
+	// S3 secret key
+	SecretKey param.Field[string] `query:"secretKey,required"`
+	// Custom URL template for accessing uploaded files. Use {key} as placeholder for
+	// the file key.
+	CustomURL param.Field[string] `query:"customUrl"`
+	// Whether to use path-style URLs
+	PathStyle param.Field[bool] `query:"pathStyle"`
+	// S3 endpoint port
+	Port param.Field[float64] `query:"port"`
+	// Whether to use SSL/TLS
+	UseSsl param.Field[bool] `query:"useSSL"`
+}
+
+// URLQuery serializes [TemplateSignedurlParamsS3Config]'s query parameters as
+// `url.Values`.
+func (r TemplateSignedurlParamsS3Config) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
