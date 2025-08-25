@@ -60,6 +60,7 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 			Port:      bannerify.F(443.000000),
 			UseSsl:    bannerify.F(true),
 		}),
+		Thumbnail: bannerify.F(true),
 	})
 	if err != nil {
 		var apierr *bannerify.Error
@@ -114,6 +115,7 @@ func TestTemplateSignedurlWithOptionalParams(t *testing.T) {
 			Port:      bannerify.F(443.000000),
 			UseSsl:    bannerify.F(true),
 		}),
+		Thumbnail: bannerify.F(true),
 	})
 	if err != nil {
 		var apierr *bannerify.Error

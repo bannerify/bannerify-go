@@ -62,6 +62,8 @@ type TemplateNewImageParams struct {
 	// Optional custom S3 configuration. If provided, the image will be stored in your
 	// S3-compatible storage instead of the default Bannerify storage.
 	S3Config param.Field[TemplateNewImageParamsS3Config] `json:"s3Config"`
+	// Generate thumbnail preview (SVG format, non-billable)
+	Thumbnail param.Field[bool] `json:"thumbnail"`
 }
 
 func (r TemplateNewImageParams) MarshalJSON() (data []byte, err error) {
@@ -219,6 +221,8 @@ type TemplateSignedurlParams struct {
 	// Optional custom S3 configuration. If provided, the image will be stored in your
 	// S3-compatible storage instead of the default Bannerify storage.
 	S3Config param.Field[TemplateSignedurlParamsS3Config] `query:"s3Config"`
+	// Generate thumbnail preview (SVG format, non-billable)
+	Thumbnail param.Field[bool] `query:"thumbnail"`
 }
 
 // URLQuery serializes [TemplateSignedurlParams]'s query parameters as
