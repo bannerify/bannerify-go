@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"github.com/bannerify/bannerify-go/internal/apijson"
 	"github.com/bannerify/bannerify-go/internal/apiquery"
@@ -35,7 +36,7 @@ func NewTemplateService(opts ...option.RequestOption) (r *TemplateService) {
 
 // Create an image from a template
 func (r *TemplateService) NewImage(ctx context.Context, body TemplateNewImageParams, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/png")}, opts...)
 	path := "v1/templates/createImage"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -44,7 +45,7 @@ func (r *TemplateService) NewImage(ctx context.Context, body TemplateNewImagePar
 
 // Generate a signed URL for a template
 func (r *TemplateService) Signedurl(ctx context.Context, query TemplateSignedurlParams, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/png")}, opts...)
 	path := "v1/templates/signedurl"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
@@ -62,7 +63,7 @@ type TemplateNewImageParams struct {
 	// Optional custom S3 configuration. If provided, the image will be stored in your
 	// S3-compatible storage instead of the default Bannerify storage.
 	S3Config param.Field[TemplateNewImageParamsS3Config] `json:"s3Config"`
-	// Generate thumbnail preview (SVG format, non-billable)
+	// Generate thumbnail preview (non-billable)
 	Thumbnail param.Field[bool] `json:"thumbnail"`
 }
 
@@ -73,13 +74,14 @@ func (r TemplateNewImageParams) MarshalJSON() (data []byte, err error) {
 type TemplateNewImageParamsFormat string
 
 const (
-	TemplateNewImageParamsFormatPng TemplateNewImageParamsFormat = "png"
-	TemplateNewImageParamsFormatSvg TemplateNewImageParamsFormat = "svg"
+	TemplateNewImageParamsFormatPng  TemplateNewImageParamsFormat = "png"
+	TemplateNewImageParamsFormatJpeg TemplateNewImageParamsFormat = "jpeg"
+	TemplateNewImageParamsFormatWebp TemplateNewImageParamsFormat = "webp"
 )
 
 func (r TemplateNewImageParamsFormat) IsKnown() bool {
 	switch r {
-	case TemplateNewImageParamsFormatPng, TemplateNewImageParamsFormatSvg:
+	case TemplateNewImageParamsFormatPng, TemplateNewImageParamsFormatJpeg, TemplateNewImageParamsFormatWebp:
 		return true
 	}
 	return false
@@ -221,7 +223,7 @@ type TemplateSignedurlParams struct {
 	// Optional custom S3 configuration. If provided, the image will be stored in your
 	// S3-compatible storage instead of the default Bannerify storage.
 	S3Config param.Field[TemplateSignedurlParamsS3Config] `query:"s3Config"`
-	// Generate thumbnail preview (SVG format, non-billable)
+	// Generate thumbnail preview (low-quality, non-billable)
 	Thumbnail param.Field[bool] `query:"thumbnail"`
 }
 
@@ -237,13 +239,14 @@ func (r TemplateSignedurlParams) URLQuery() (v url.Values) {
 type TemplateSignedurlParamsFormat string
 
 const (
-	TemplateSignedurlParamsFormatPng TemplateSignedurlParamsFormat = "png"
-	TemplateSignedurlParamsFormatSvg TemplateSignedurlParamsFormat = "svg"
+	TemplateSignedurlParamsFormatPng  TemplateSignedurlParamsFormat = "png"
+	TemplateSignedurlParamsFormatJpeg TemplateSignedurlParamsFormat = "jpeg"
+	TemplateSignedurlParamsFormatWebp TemplateSignedurlParamsFormat = "webp"
 )
 
 func (r TemplateSignedurlParamsFormat) IsKnown() bool {
 	switch r {
-	case TemplateSignedurlParamsFormatPng, TemplateSignedurlParamsFormatSvg:
+	case TemplateSignedurlParamsFormatPng, TemplateSignedurlParamsFormatJpeg, TemplateSignedurlParamsFormatWebp:
 		return true
 	}
 	return false
