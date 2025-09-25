@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"github.com/bannerify/bannerify-go/internal/apijson"
 	"github.com/bannerify/bannerify-go/internal/apiquery"
@@ -35,7 +36,7 @@ func NewInfoService(opts ...option.RequestOption) (r *InfoService) {
 
 // Get project info
 func (r *InfoService) Get(ctx context.Context, query InfoGetParams, opts ...option.RequestOption) (res *InfoGetResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "v1/info"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
