@@ -91,24 +91,24 @@ func main() {
 		}
 	}
 
-	// Test 3: Create SVG
-	fmt.Println("\n3️⃣ Test: Create SVG image")
+	// Test 3: Create JPEG
+	fmt.Println("\n3️⃣ Test: Create JPEG image")
 	result = client.CreateImage(ctx, templateID, &bannerify.CreateImageOptions{
-		Format: "svg",
+		Format: "jpeg",
 		Modifications: []bannerify.Modification{
-			{Name: "title", Text: strPtr("SVG Output")},
+			{Name: "title", Text: strPtr("JPEG Output")},
 		},
 	})
 
 	if result.Error != nil {
 		fmt.Printf("❌ Error: %s\n", result.Error.Message)
 	} else {
-		outputPath := filepath.Join(outputDir, "test-svg.svg")
+		outputPath := filepath.Join(outputDir, "test-jpeg.jpg")
 		if err := os.WriteFile(outputPath, result.Result, 0644); err != nil {
 			fmt.Printf("❌ Error writing file: %v\n", err)
 		} else {
-			fmt.Printf("✅ SVG created: %s\n", outputPath)
-			fmt.Printf("   Size: %d chars\n", len(result.Result))
+			fmt.Printf("✅ JPEG created: %s\n", outputPath)
+			fmt.Printf("   Size: %d bytes\n", len(result.Result))
 		}
 	}
 

@@ -66,9 +66,9 @@ result := client.CreateImage(ctx, "tpl_xxxxxxxxx", &bannerify.CreateImageOptions
 	},
 })
 
-// Generate SVG
+// Generate WebP
 result := client.CreateImage(ctx, "tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
-	Format: "svg",
+	Format: "webp",
 	Modifications: []bannerify.Modification{
 		{Name: "title", Text: "My Title"},
 	},

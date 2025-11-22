@@ -50,25 +50,24 @@ func main() {
 	fmt.Println("✓ PASSED")
 	fmt.Printf("   URL: %s...\n", signedURL[:80])
 
-	// Test 3: Create image (SVG)
-	fmt.Print("Test 3: Creating image (SVG format)... ")
+	// Test 3: Create image (JPEG)
+	fmt.Print("Test 3: Creating image (JPEG format)... ")
 	result := client.CreateImage(ctx, templateID, &bannerify.CreateImageOptions{
-		Format: "svg",
+		Format: "jpeg",
 		Modifications: []bannerify.Modification{
-			{Name: "title", Text: "Go SDK Test"},
+			{Name: "title", Text: "Go SDK JPEG Test"},
 		},
 	})
 	if result.Error != nil {
 		fmt.Printf("✗ FAILED: %s\n", result.Error.Message)
 		failed = true
 	} else if result.Result != nil {
-		svg := string(result.Result)
-		if !strings.Contains(svg, "<svg") {
-			fmt.Println("✗ FAILED: Response doesn't contain SVG")
+		if len(result.Result) == 0 {
+			fmt.Println("✗ FAILED: Empty response")
 			failed = true
 		} else {
 			fmt.Println("✓ PASSED")
-			fmt.Printf("   SVG size: %d bytes\n", len(svg))
+			fmt.Printf("   JPEG size: %d bytes\n", len(result.Result))
 		}
 	}
 

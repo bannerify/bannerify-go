@@ -19,6 +19,12 @@ const (
 	userAgent      = "bannerify-go/0.1.0"
 )
 
+var supportedFormats = map[string]struct{}{
+	"png":  {},
+	"jpeg": {},
+	"webp": {},
+}
+
 // Client is the Bannerify API client
 type Client struct {
 	apiKey     string
@@ -83,7 +89,7 @@ type ErrorResponse struct {
 // CreateImageOptions contains options for creating an image
 type CreateImageOptions struct {
 	Modifications []Modification
-	Format        string // "png" or "svg"
+	Format        string // "png", "jpeg", or "webp"
 	Thumbnail     bool
 }
 
@@ -93,16 +99,17 @@ func (c *Client) CreateImage(ctx context.Context, templateID string, opts *Creat
 		opts = &CreateImageOptions{}
 	}
 
+	format, err := normalizeFormat(opts.Format)
+	if err != nil {
+		return invalidFormatResponse(err)
+	}
+
 	payload := map[string]interface{}{
 		"apiKey":        c.apiKey,
 		"templateId":    templateID,
 		"modifications": opts.Modifications,
-		"format":        opts.Format,
+		"format":        format,
 		"thumbnail":     opts.Thumbnail,
-	}
-
-	if opts.Format == "" {
-		payload["format"] = "png"
 	}
 
 	body, err := json.Marshal(payload)
@@ -229,8 +236,12 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 	params.Set("apiKeyHashed", apiKeyHashed)
 	params.Set("templateId", templateID)
 
-	if opts.Format == "svg" {
-		params.Set("format", "svg")
+	if opts.Format != "" {
+		format, err := normalizeFormat(opts.Format)
+		if err != nil {
+			return "", err
+		}
+		params.Set("format", format)
 	}
 
 	if len(opts.Modifications) > 0 {
@@ -264,5 +275,23 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 	sortedParams.Set("sign", sign)
 
 	return fmt.Sprintf("%s/templates/signedurl?%s", c.baseURL, sortedParams.Encode()), nil
+}
+
+func normalizeFormat(format string) (string, error) {
+	if format == "" {
+		return "png", nil
+	}
+	if _, ok := supportedFormats[format]; ok {
+		return format, nil
+	}
+	return "", fmt.Errorf("unsupported format %q. Valid formats: png, jpeg, webp", format)
+}
+
+func invalidFormatResponse(err error) *Response {
+	return &Response{Error: &ErrorResponse{
+		Code:    "INVALID_FORMAT",
+		Message: err.Error(),
+		Docs:    "https://bannerify.co/docs",
+	}}
 }
 
