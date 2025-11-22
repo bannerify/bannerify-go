@@ -80,18 +80,6 @@ type ErrorResponse struct {
 	Docs    string `json:"docs"`
 }
 
-// Modification represents a template modification
-type Modification struct {
-	Name    string      `json:"name"`
-	Text    string      `json:"text,omitempty"`
-	Src     string      `json:"src,omitempty"`
-	Visible *bool       `json:"visible,omitempty"`
-	Color   string      `json:"color,omitempty"`
-	Qrcode  string      `json:"qrcode,omitempty"`
-	Barcode string      `json:"barcode,omitempty"`
-	Chart   interface{} `json:"chart,omitempty"`
-}
-
 // CreateImageOptions contains options for creating an image
 type CreateImageOptions struct {
 	Modifications []Modification
