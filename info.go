@@ -39,13 +39,13 @@ func (r *InfoService) Get(ctx context.Context, query InfoGetParams, opts ...opti
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/info"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 type InfoGetResponse struct {
-	ID        string              `json:"id,required"`
-	CreatedAt string              `json:"createdAt,required"`
-	Name      string              `json:"name,required"`
+	ID        string              `json:"id" api:"required"`
+	CreatedAt string              `json:"createdAt" api:"required"`
+	Name      string              `json:"name" api:"required"`
 	JSON      infoGetResponseJSON `json:"-"`
 }
 
@@ -68,7 +68,7 @@ func (r infoGetResponseJSON) RawJSON() string {
 
 type InfoGetParams struct {
 	// The api key to use for this request
-	APIKey param.Field[string] `query:"apiKey,required"`
+	APIKey param.Field[string] `query:"apiKey" api:"required"`
 }
 
 // URLQuery serializes [InfoGetParams]'s query parameters as `url.Values`.

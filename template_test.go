@@ -31,24 +31,10 @@ func TestTemplateNewImageWithOptionalParams(t *testing.T) {
 		TemplateID: bannerify.F("tpl_xxxxxxxxx"),
 		Debug:      bannerify.F("_debug"),
 		Format:     bannerify.F(bannerify.TemplateNewImageParamsFormatPng),
-		Modifications: bannerify.F([]bannerify.TemplateNewImageParamsModification{{
-			Name:    bannerify.F("Text 1"),
-			Barcode: bannerify.F("1234567890"),
-			Chart: bannerify.F(map[string]interface{}{
-				"foo": "bar",
-			}),
-			Color:      bannerify.F("#FF0000"),
-			Columns:    bannerify.F([]string{"string"}),
-			HeightMode: bannerify.F(bannerify.TemplateNewImageParamsModificationsHeightModeAdaptive),
-			Qrcode:     bannerify.F("Some text"),
-			Rows:       bannerify.F([]interface{}{map[string]interface{}{}}),
-			Src:        bannerify.F("https://example.com/image.jpg"),
-			Star:       bannerify.F(5.000000),
-			Text:       bannerify.F("Hello World"),
-			Theme:      bannerify.F(bannerify.TemplateNewImageParamsModificationsThemeNone),
-			Visible:    bannerify.F(true),
-			WidthMode:  bannerify.F(bannerify.TemplateNewImageParamsModificationsWidthModeAdaptive),
-		}}),
+		Modifications: bannerify.F[bannerify.TemplateNewImageParamsModificationsUnion](bannerify.TemplateNewImageParamsModificationsMap(map[string]interface{}{
+			"headline": "bar",
+			"photo":    "bar",
+		})),
 		S3Config: bannerify.F(bannerify.TemplateNewImageParamsS3Config{
 			AccessKey: bannerify.F("accessKey"),
 			Bucket:    bannerify.F("my-images-bucket"),
