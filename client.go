@@ -1,297 +1,119 @@
-// Package bannerify provides a simple client for the Bannerify API
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
 package bannerify
 
 import (
-	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
-	"net/url"
-	"sort"
-	"time"
+	"os"
+	"slices"
+
+	"github.com/bannerify/bannerify-go/internal/requestconfig"
+	"github.com/bannerify/bannerify-go/option"
 )
 
-const (
-	defaultBaseURL = "https://api.bannerify.co/v1"
-	userAgent      = "bannerify-go/0.1.0"
-)
-
-var supportedFormats = map[string]struct{}{
-	"png":  {},
-	"jpeg": {},
-	"webp": {},
-}
-
-// Client is the Bannerify API client
+// Client creates a struct with services and top level methods that help with
+// interacting with the bannerify API. You should not instantiate this client
+// directly, and instead use the [NewClient] method instead.
 type Client struct {
-	apiKey     string
-	baseURL    string
-	httpClient *http.Client
+	Options   []option.RequestOption
+	Templates *TemplateService
+	Info      *InfoService
 }
 
-// NewClient creates a new Bannerify client
-func NewClient(apiKey string, opts ...Option) *Client {
-	client := &Client{
-		apiKey:  apiKey,
-		baseURL: defaultBaseURL,
-		httpClient: &http.Client{
-			Timeout: 60 * time.Second,
-		},
+// DefaultClientOptions read from the environment (BANNERIFY_API_KEY,
+// BANNERIFY_BASE_URL). This should be used to initialize new clients.
+func DefaultClientOptions() []option.RequestOption {
+	defaults := []option.RequestOption{option.WithEnvironmentProduction()}
+	if o, ok := os.LookupEnv("BANNERIFY_BASE_URL"); ok {
+		defaults = append(defaults, option.WithBaseURL(o))
 	}
-
-	for _, opt := range opts {
-		opt(client)
+	if o, ok := os.LookupEnv("BANNERIFY_API_KEY"); ok {
+		defaults = append(defaults, option.WithAPIKey(o))
 	}
-
-	return client
+	return defaults
 }
 
-// Option is a functional option for configuring the client
-type Option func(*Client)
+// NewClient generates a new client with the default option read from the
+// environment (BANNERIFY_API_KEY, BANNERIFY_BASE_URL). The option passed in as
+// arguments are applied after these default arguments, and all option will be
+// passed down to the services and requests that this client makes.
+func NewClient(opts ...option.RequestOption) (r *Client) {
+	opts = append(DefaultClientOptions(), opts...)
 
-// WithBaseURL sets a custom base URL
-func WithBaseURL(baseURL string) Option {
-	return func(c *Client) {
-		c.baseURL = baseURL
-	}
+	r = &Client{Options: opts}
+
+	r.Templates = NewTemplateService(opts...)
+	r.Info = NewInfoService(opts...)
+
+	return
 }
 
-// WithTimeout sets a custom timeout
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *Client) {
-		c.httpClient.Timeout = timeout
-	}
+// Execute makes a request with the given context, method, URL, request params,
+// response, and request options. This is useful for hitting undocumented endpoints
+// while retaining the base URL, auth, retries, and other options from the client.
+//
+// If a byte slice or an [io.Reader] is supplied to params, it will be used as-is
+// for the request body.
+//
+// The params is by default serialized into the body using [encoding/json]. If your
+// type implements a MarshalJSON function, it will be used instead to serialize the
+// request. If a URLQuery method is implemented, the returned [url.Values] will be
+// used as query strings to the url.
+//
+// If your params struct uses [param.Field], you must provide either [MarshalJSON],
+// [URLQuery], and/or [MarshalForm] functions. It is undefined behavior to use a
+// struct uses [param.Field] without specifying how it is serialized.
+//
+// Any "…Params" object defined in this library can be used as the request
+// argument. Note that 'path' arguments will not be forwarded into the url.
+//
+// The response body will be deserialized into the res variable, depending on its
+// type:
+//
+//   - A pointer to a [*http.Response] is populated by the raw response.
+//   - A pointer to a byte array will be populated with the contents of the request
+//     body.
+//   - A pointer to any other type uses this library's default JSON decoding, which
+//     respects UnmarshalJSON if it is defined on the type.
+//   - A nil value will not read the response body.
+//
+// For even greater flexibility, see [option.WithResponseInto] and
+// [option.WithResponseBodyInto].
+func (r *Client) Execute(ctx context.Context, method string, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
+	opts = slices.Concat(r.Options, opts)
+	return requestconfig.ExecuteNewRequest(ctx, method, path, params, res, opts...)
 }
 
-// WithHTTPClient sets a custom HTTP client
-func WithHTTPClient(httpClient *http.Client) Option {
-	return func(c *Client) {
-		c.httpClient = httpClient
-	}
+// Get makes a GET request with the given URL, params, and optionally deserializes
+// to a response. See [Execute] documentation on the params and response.
+func (r *Client) Get(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
+	return r.Execute(ctx, http.MethodGet, path, params, res, opts...)
 }
 
-// Response represents an API response
-type Response struct {
-	Result []byte
-	Error  *ErrorResponse
+// Post makes a POST request with the given URL, params, and optionally
+// deserializes to a response. See [Execute] documentation on the params and
+// response.
+func (r *Client) Post(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
+	return r.Execute(ctx, http.MethodPost, path, params, res, opts...)
 }
 
-// ErrorResponse represents an error response
-type ErrorResponse struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-	Docs    string `json:"docs"`
+// Put makes a PUT request with the given URL, params, and optionally deserializes
+// to a response. See [Execute] documentation on the params and response.
+func (r *Client) Put(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
+	return r.Execute(ctx, http.MethodPut, path, params, res, opts...)
 }
 
-// CreateImageOptions contains options for creating an image
-type CreateImageOptions struct {
-	Modifications []Modification
-	Format        string // "png", "jpeg", or "webp"
-	Thumbnail     bool
+// Patch makes a PATCH request with the given URL, params, and optionally
+// deserializes to a response. See [Execute] documentation on the params and
+// response.
+func (r *Client) Patch(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
+	return r.Execute(ctx, http.MethodPatch, path, params, res, opts...)
 }
 
-// CreateImage generates an image from a template
-func (c *Client) CreateImage(ctx context.Context, templateID string, opts *CreateImageOptions) *Response {
-	if opts == nil {
-		opts = &CreateImageOptions{}
-	}
-
-	format, err := normalizeFormat(opts.Format)
-	if err != nil {
-		return invalidFormatResponse(err)
-	}
-
-	payload := map[string]interface{}{
-		"apiKey":        c.apiKey,
-		"templateId":    templateID,
-		"modifications": opts.Modifications,
-		"format":        format,
-		"thumbnail":     opts.Thumbnail,
-	}
-
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "JSON_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/templates/createImage", bytes.NewReader(body))
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "REQUEST_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.apiKey)
-	req.Header.Set("User-Agent", userAgent)
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-	defer resp.Body.Close()
-
-	result, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "READ_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: fmt.Sprintf("HTTP %d: %s", resp.StatusCode, string(result)),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	return &Response{Result: result}
+// Delete makes a DELETE request with the given URL, params, and optionally
+// deserializes to a response. See [Execute] documentation on the params and
+// response.
+func (r *Client) Delete(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
+	return r.Execute(ctx, http.MethodDelete, path, params, res, opts...)
 }
-
-// CreatePDF generates a PDF from a template
-func (c *Client) CreatePDF(ctx context.Context, templateID string, modifications []Modification) *Response {
-	payload := map[string]interface{}{
-		"apiKey":        c.apiKey,
-		"templateId":    templateID,
-		"modifications": modifications,
-	}
-
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "JSON_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/templates/createPdf", bytes.NewReader(body))
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "REQUEST_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.apiKey)
-	req.Header.Set("User-Agent", userAgent)
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-	defer resp.Body.Close()
-
-	result, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "READ_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: fmt.Sprintf("HTTP %d", resp.StatusCode),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	return &Response{Result: result}
-}
-
-// GenerateImageSignedURL generates a signed URL for on-demand image generation
-func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOptions) (string, error) {
-	if opts == nil {
-		opts = &CreateImageOptions{}
-	}
-
-	apiKeyHashed := fmt.Sprintf("%x", sha256.Sum256([]byte(c.apiKey)))
-
-	params := url.Values{}
-	params.Set("apiKeyHashed", apiKeyHashed)
-	params.Set("templateId", templateID)
-
-	if opts.Format != "" {
-		format, err := normalizeFormat(opts.Format)
-		if err != nil {
-			return "", err
-		}
-		params.Set("format", format)
-	}
-
-	if len(opts.Modifications) > 0 {
-		modsJSON, err := json.Marshal(opts.Modifications)
-		if err != nil {
-			return "", err
-		}
-		params.Set("modifications", string(modsJSON))
-	}
-
-	if opts.Thumbnail {
-		params.Set("thumbnail", "true")
-	}
-
-	// Sort parameters
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	sortedParams := url.Values{}
-	for _, k := range keys {
-		sortedParams.Set(k, params.Get(k))
-	}
-
-	// Generate signature
-	queryString := sortedParams.Encode()
-	signInput := queryString + apiKeyHashed
-	sign := fmt.Sprintf("%x", sha256.Sum256([]byte(signInput)))
-	sortedParams.Set("sign", sign)
-
-	return fmt.Sprintf("%s/templates/signedurl?%s", c.baseURL, sortedParams.Encode()), nil
-}
-
-func normalizeFormat(format string) (string, error) {
-	if format == "" {
-		return "png", nil
-	}
-	if _, ok := supportedFormats[format]; ok {
-		return format, nil
-	}
-	return "", fmt.Errorf("unsupported format %q. Valid formats: png, jpeg, webp", format)
-}
-
-func invalidFormatResponse(err error) *Response {
-	return &Response{Error: &ErrorResponse{
-		Code:    "INVALID_FORMAT",
-		Message: err.Error(),
-		Docs:    "https://bannerify.co/docs",
-	}}
-}
-

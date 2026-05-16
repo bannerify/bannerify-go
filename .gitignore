@@ -1,12 +1,4 @@
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
-*.out
-vendor/
-openapi.json
-.env
-playground/output/
-
+.prism.log
+codegen.log
+Brewfile.lock.json
+.idea/
