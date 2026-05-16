@@ -38,7 +38,7 @@ func TestUserAgentHeader(t *testing.T) {
 			},
 		}),
 	)
-	client.Info.Get(context.Background(), bannerify.InfoGetParams{
+	_, _ = client.Info.Get(context.Background(), bannerify.InfoGetParams{
 		APIKey: bannerify.F("REPLACE_ME"),
 	})
 	if userAgent != fmt.Sprintf("Bannerify/Go %s", internal.PackageVersion) {

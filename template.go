@@ -40,7 +40,7 @@ func (r *TemplateService) NewImage(ctx context.Context, body TemplateNewImagePar
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/png")}, opts...)
 	path := "v1/templates/createImage"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Generate a signed URL for a template
@@ -49,19 +49,22 @@ func (r *TemplateService) Signedurl(ctx context.Context, query TemplateSignedurl
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/png")}, opts...)
 	path := "v1/templates/signedurl"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 type TemplateNewImageParams struct {
-	APIKey param.Field[string] `json:"apiKey,required"`
+	APIKey param.Field[string] `json:"apiKey" api:"required"`
 	// Your template id
-	TemplateID param.Field[string] `json:"templateId,required"`
+	TemplateID param.Field[string] `json:"templateId" api:"required"`
 	// Only for debug purpose, it draws bounding box for each layer
-	Debug         param.Field[string]                               `json:"_debug"`
-	Format        param.Field[TemplateNewImageParamsFormat]         `json:"format"`
-	Modifications param.Field[[]TemplateNewImageParamsModification] `json:"modifications"`
-	// Optional custom S3 configuration. If provided, the image will be stored in your
-	// S3-compatible storage instead of the default Bannerify storage.
+	Debug  param.Field[string]                       `json:"_debug"`
+	Format param.Field[TemplateNewImageParamsFormat] `json:"format"`
+	// Template modifications as the API array format, an object shorthand, or a JSON
+	// string. Object values map to text by default, while nested objects keep fields
+	// such as src, qrcode, rows, or chart.
+	Modifications param.Field[TemplateNewImageParamsModificationsUnion] `json:"modifications"`
+	// Optional custom S3 configuration. If provided, the generated file will be stored
+	// in your S3-compatible storage instead of the default Bannerify storage.
 	S3Config param.Field[TemplateNewImageParamsS3Config] `json:"s3Config"`
 	// Generate thumbnail preview (non-billable)
 	Thumbnail param.Field[bool] `json:"thumbnail"`
@@ -87,10 +90,25 @@ func (r TemplateNewImageParamsFormat) IsKnown() bool {
 	return false
 }
 
+// Template modifications as the API array format, an object shorthand, or a JSON
+// string. Object values map to text by default, while nested objects keep fields
+// such as src, qrcode, rows, or chart.
+//
+// Satisfied by [TemplateNewImageParamsModificationsArray],
+// [TemplateNewImageParamsModificationsMap], [shared.UnionString].
+type TemplateNewImageParamsModificationsUnion interface {
+	ImplementsTemplateNewImageParamsModificationsUnion()
+}
+
+type TemplateNewImageParamsModificationsArray []TemplateNewImageParamsModificationsArrayItem
+
+func (r TemplateNewImageParamsModificationsArray) ImplementsTemplateNewImageParamsModificationsUnion() {
+}
+
 // A modification (aka override) to apply to the layer in image
-type TemplateNewImageParamsModification struct {
+type TemplateNewImageParamsModificationsArrayItem struct {
 	// The layer name of the modification
-	Name param.Field[string] `json:"name,required"`
+	Name param.Field[string] `json:"name" api:"required"`
 	// Modify the barcode layer content with this field
 	Barcode param.Field[string] `json:"barcode"`
 	// Update chart layer's data, follow chart.js data structure
@@ -100,7 +118,7 @@ type TemplateNewImageParamsModification struct {
 	// Table columns
 	Columns param.Field[[]string] `json:"columns"`
 	// Table height mode
-	HeightMode param.Field[TemplateNewImageParamsModificationsHeightMode] `json:"heightMode"`
+	HeightMode param.Field[TemplateNewImageParamsModificationsArrayHeightMode] `json:"heightMode"`
 	// Modify the qrcode layer content with this field
 	Qrcode param.Field[string] `json:"qrcode"`
 	// Table rows
@@ -112,81 +130,86 @@ type TemplateNewImageParamsModification struct {
 	// You can modify the text layer with this field
 	Text param.Field[string] `json:"text"`
 	// Table theme
-	Theme param.Field[TemplateNewImageParamsModificationsTheme] `json:"theme"`
+	Theme param.Field[TemplateNewImageParamsModificationsArrayTheme] `json:"theme"`
 	// Set the visibility of the field
 	Visible param.Field[bool] `json:"visible"`
 	// Table width mode
-	WidthMode param.Field[TemplateNewImageParamsModificationsWidthMode] `json:"widthMode"`
+	WidthMode param.Field[TemplateNewImageParamsModificationsArrayWidthMode] `json:"widthMode"`
 }
 
-func (r TemplateNewImageParamsModification) MarshalJSON() (data []byte, err error) {
+func (r TemplateNewImageParamsModificationsArrayItem) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
 // Table height mode
-type TemplateNewImageParamsModificationsHeightMode string
+type TemplateNewImageParamsModificationsArrayHeightMode string
 
 const (
-	TemplateNewImageParamsModificationsHeightModeStandard TemplateNewImageParamsModificationsHeightMode = "standard"
-	TemplateNewImageParamsModificationsHeightModeAdaptive TemplateNewImageParamsModificationsHeightMode = "adaptive"
+	TemplateNewImageParamsModificationsArrayHeightModeStandard TemplateNewImageParamsModificationsArrayHeightMode = "standard"
+	TemplateNewImageParamsModificationsArrayHeightModeAdaptive TemplateNewImageParamsModificationsArrayHeightMode = "adaptive"
 )
 
-func (r TemplateNewImageParamsModificationsHeightMode) IsKnown() bool {
+func (r TemplateNewImageParamsModificationsArrayHeightMode) IsKnown() bool {
 	switch r {
-	case TemplateNewImageParamsModificationsHeightModeStandard, TemplateNewImageParamsModificationsHeightModeAdaptive:
+	case TemplateNewImageParamsModificationsArrayHeightModeStandard, TemplateNewImageParamsModificationsArrayHeightModeAdaptive:
 		return true
 	}
 	return false
 }
 
 // Table theme
-type TemplateNewImageParamsModificationsTheme string
+type TemplateNewImageParamsModificationsArrayTheme string
 
 const (
-	TemplateNewImageParamsModificationsThemeNone     TemplateNewImageParamsModificationsTheme = "NONE"
-	TemplateNewImageParamsModificationsThemeDefault  TemplateNewImageParamsModificationsTheme = "DEFAULT"
-	TemplateNewImageParamsModificationsThemeBright   TemplateNewImageParamsModificationsTheme = "BRIGHT"
-	TemplateNewImageParamsModificationsThemeSimplify TemplateNewImageParamsModificationsTheme = "SIMPLIFY"
-	TemplateNewImageParamsModificationsThemeArco     TemplateNewImageParamsModificationsTheme = "ARCO"
+	TemplateNewImageParamsModificationsArrayThemeNone     TemplateNewImageParamsModificationsArrayTheme = "NONE"
+	TemplateNewImageParamsModificationsArrayThemeDefault  TemplateNewImageParamsModificationsArrayTheme = "DEFAULT"
+	TemplateNewImageParamsModificationsArrayThemeBright   TemplateNewImageParamsModificationsArrayTheme = "BRIGHT"
+	TemplateNewImageParamsModificationsArrayThemeSimplify TemplateNewImageParamsModificationsArrayTheme = "SIMPLIFY"
+	TemplateNewImageParamsModificationsArrayThemeArco     TemplateNewImageParamsModificationsArrayTheme = "ARCO"
 )
 
-func (r TemplateNewImageParamsModificationsTheme) IsKnown() bool {
+func (r TemplateNewImageParamsModificationsArrayTheme) IsKnown() bool {
 	switch r {
-	case TemplateNewImageParamsModificationsThemeNone, TemplateNewImageParamsModificationsThemeDefault, TemplateNewImageParamsModificationsThemeBright, TemplateNewImageParamsModificationsThemeSimplify, TemplateNewImageParamsModificationsThemeArco:
+	case TemplateNewImageParamsModificationsArrayThemeNone, TemplateNewImageParamsModificationsArrayThemeDefault, TemplateNewImageParamsModificationsArrayThemeBright, TemplateNewImageParamsModificationsArrayThemeSimplify, TemplateNewImageParamsModificationsArrayThemeArco:
 		return true
 	}
 	return false
 }
 
 // Table width mode
-type TemplateNewImageParamsModificationsWidthMode string
+type TemplateNewImageParamsModificationsArrayWidthMode string
 
 const (
-	TemplateNewImageParamsModificationsWidthModeStandard TemplateNewImageParamsModificationsWidthMode = "standard"
-	TemplateNewImageParamsModificationsWidthModeAdaptive TemplateNewImageParamsModificationsWidthMode = "adaptive"
+	TemplateNewImageParamsModificationsArrayWidthModeStandard TemplateNewImageParamsModificationsArrayWidthMode = "standard"
+	TemplateNewImageParamsModificationsArrayWidthModeAdaptive TemplateNewImageParamsModificationsArrayWidthMode = "adaptive"
 )
 
-func (r TemplateNewImageParamsModificationsWidthMode) IsKnown() bool {
+func (r TemplateNewImageParamsModificationsArrayWidthMode) IsKnown() bool {
 	switch r {
-	case TemplateNewImageParamsModificationsWidthModeStandard, TemplateNewImageParamsModificationsWidthModeAdaptive:
+	case TemplateNewImageParamsModificationsArrayWidthModeStandard, TemplateNewImageParamsModificationsArrayWidthModeAdaptive:
 		return true
 	}
 	return false
 }
 
-// Optional custom S3 configuration. If provided, the image will be stored in your
-// S3-compatible storage instead of the default Bannerify storage.
+type TemplateNewImageParamsModificationsMap map[string]interface{}
+
+func (r TemplateNewImageParamsModificationsMap) ImplementsTemplateNewImageParamsModificationsUnion() {
+}
+
+// Optional custom S3 configuration. If provided, the generated file will be stored
+// in your S3-compatible storage instead of the default Bannerify storage.
 type TemplateNewImageParamsS3Config struct {
 	// S3 access key
-	AccessKey param.Field[string] `json:"accessKey,required"`
+	AccessKey param.Field[string] `json:"accessKey" api:"required"`
 	// S3 bucket name
-	Bucket param.Field[string] `json:"bucket,required"`
+	Bucket param.Field[string] `json:"bucket" api:"required"`
 	// S3 endpoint URL (without protocol)
-	EndPoint param.Field[string] `json:"endPoint,required"`
+	EndPoint param.Field[string] `json:"endPoint" api:"required"`
 	// S3 region
-	Region param.Field[string] `json:"region,required"`
+	Region param.Field[string] `json:"region" api:"required"`
 	// S3 secret key
-	SecretKey param.Field[string] `json:"secretKey,required"`
+	SecretKey param.Field[string] `json:"secretKey" api:"required"`
 	// Custom URL template for accessing uploaded files. Use {key} as placeholder for
 	// the file key.
 	CustomURL param.Field[string] `json:"customUrl"`
@@ -205,9 +228,9 @@ func (r TemplateNewImageParamsS3Config) MarshalJSON() (data []byte, err error) {
 type TemplateSignedurlParams struct {
 	// SHA256 hash of the query params, read more at
 	// https://documentation.bannerify.co/api#signing-requests
-	Sign param.Field[string] `query:"sign,required"`
+	Sign param.Field[string] `query:"sign" api:"required"`
 	// Your template id
-	TemplateID param.Field[string] `query:"templateId,required"`
+	TemplateID param.Field[string] `query:"templateId" api:"required"`
 	// Only for debug purpose, it draws bounding box for each layer
 	Debug param.Field[string] `query:"_debug"`
 	// Sha256 hash of the API key (use this)
@@ -220,8 +243,8 @@ type TemplateSignedurlParams struct {
 	// By default, we cache the image in the CDN for 1 day to save your bandwidth, use
 	// this field to disable cache so you can get the latest image
 	Nocache param.Field[string] `query:"nocache"`
-	// Optional custom S3 configuration. If provided, the image will be stored in your
-	// S3-compatible storage instead of the default Bannerify storage.
+	// Optional custom S3 configuration. If provided, the generated file will be stored
+	// in your S3-compatible storage instead of the default Bannerify storage.
 	S3Config param.Field[TemplateSignedurlParamsS3Config] `query:"s3Config"`
 	// Generate thumbnail preview (low-quality, non-billable)
 	Thumbnail param.Field[bool] `query:"thumbnail"`
@@ -252,19 +275,19 @@ func (r TemplateSignedurlParamsFormat) IsKnown() bool {
 	return false
 }
 
-// Optional custom S3 configuration. If provided, the image will be stored in your
-// S3-compatible storage instead of the default Bannerify storage.
+// Optional custom S3 configuration. If provided, the generated file will be stored
+// in your S3-compatible storage instead of the default Bannerify storage.
 type TemplateSignedurlParamsS3Config struct {
 	// S3 access key
-	AccessKey param.Field[string] `query:"accessKey,required"`
+	AccessKey param.Field[string] `query:"accessKey" api:"required"`
 	// S3 bucket name
-	Bucket param.Field[string] `query:"bucket,required"`
+	Bucket param.Field[string] `query:"bucket" api:"required"`
 	// S3 endpoint URL (without protocol)
-	EndPoint param.Field[string] `query:"endPoint,required"`
+	EndPoint param.Field[string] `query:"endPoint" api:"required"`
 	// S3 region
-	Region param.Field[string] `query:"region,required"`
+	Region param.Field[string] `query:"region" api:"required"`
 	// S3 secret key
-	SecretKey param.Field[string] `query:"secretKey,required"`
+	SecretKey param.Field[string] `query:"secretKey" api:"required"`
 	// Custom URL template for accessing uploaded files. Use {key} as placeholder for
 	// the file key.
 	CustomURL param.Field[string] `query:"customUrl"`

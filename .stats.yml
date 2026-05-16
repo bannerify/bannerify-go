@@ -1,4 +1,4 @@
 configured_endpoints: 3
-openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/ducan-ne%2Fbannerify-6d755da49da9dcda7b5321996aafc62df2aebaee929ccfa68de1f69844250b64.yml
-openapi_spec_hash: 0d38123fde5a2e998241d8100a0dcda9
+openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/ducan-ne/bannerify-2db166236476d8bdbec24156d1075ff8e8e9e0c554887325a779dfe2f9402e8b.yml
+openapi_spec_hash: c5b99a685136a630acc138ad41ba92f5
 config_hash: 5782658eaddc5a47107180bd2b490d2c
