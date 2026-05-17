@@ -227,7 +227,7 @@ func (r TemplateNewImageParamsS3Config) MarshalJSON() (data []byte, err error) {
 
 type TemplateSignedurlParams struct {
 	// SHA256 hash of the query params, read more at
-	// https://documentation.bannerify.co/api#signing-requests
+	// https://bannerify.co/docs/api-reference/endpoint/signed-url
 	Sign param.Field[string] `query:"sign" api:"required"`
 	// Your template id
 	TemplateID param.Field[string] `query:"templateId" api:"required"`
