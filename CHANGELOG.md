@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.0-alpha.2 (2026-07-18)
+
+Full Changelog: [v0.1.0-alpha.1...v0.1.0-alpha.2](https://github.com/bannerify/bannerify-go/compare/v0.1.0-alpha.1...v0.1.0-alpha.2)
+
+### Features
+
+* **api:** api update ([e9f5078](https://github.com/bannerify/bannerify-go/commit/e9f5078b436bbe421a809321f47e7a600adf2991))
+* **api:** api update ([6bbc9a0](https://github.com/bannerify/bannerify-go/commit/6bbc9a0b3bb346612e0814913e9bd0b4667f99d2))
+* **stlc:** configurable CI runner and private-production-repo support in workflow templates ([468fcbd](https://github.com/bannerify/bannerify-go/commit/468fcbdc7465d9e083ccc7db6b9ec1df1be602f6))
+
+
+### Bug Fixes
+
+* remove duplicate type definitions ([59c3957](https://github.com/bannerify/bannerify-go/commit/59c39577504450b5a7ecf6924191d9db33ee370c))
+
+
+### Chores
+
+* remove svg output support ([e5eeb0b](https://github.com/bannerify/bannerify-go/commit/e5eeb0b595e4415c51dfda3fbdd87ebed275538e))
+* sync repo ([7d62476](https://github.com/bannerify/bannerify-go/commit/7d62476484146de596e8558481b22f155b8134d4))
+
 ## 0.1.0-alpha.1 (2024-08-29)
 
 Full Changelog: [v0.0.1-alpha.1...v0.1.0-alpha.1](https://github.com/bannerify/bannerify-go/compare/v0.0.1-alpha.1...v0.1.0-alpha.1)
