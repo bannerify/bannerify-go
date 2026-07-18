@@ -1,3 +1,13 @@
 module github.com/bannerify/bannerify-go
 
-go 1.24.1
+go 1.22
+
+require (
+	github.com/tidwall/gjson v1.14.4
+	github.com/tidwall/sjson v1.2.5
+)
+
+require (
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+)
