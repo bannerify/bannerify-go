@@ -4,7 +4,9 @@ package bannerify
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -268,10 +270,12 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 		sortedParams.Set(k, params.Get(k))
 	}
 
-	// Generate signature
+	// Generate signature: HMAC keyed with the API key, so the URL can be shared
+	// without exposing anything that can sign a different one.
 	queryString := sortedParams.Encode()
-	signInput := queryString + apiKeyHashed
-	sign := fmt.Sprintf("%x", sha256.Sum256([]byte(signInput)))
+	mac := hmac.New(sha256.New, []byte(c.apiKey))
+	mac.Write([]byte(queryString))
+	sign := hex.EncodeToString(mac.Sum(nil))
 	sortedParams.Set("sign", sign)
 
 	return fmt.Sprintf("%s/templates/signedurl?%s", c.baseURL, sortedParams.Encode()), nil
