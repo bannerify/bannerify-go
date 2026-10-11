@@ -359,9 +359,6 @@ type PostV1TemplatesCreateImageJSONBody struct {
 
 	// TemplateId Your template id
 	TemplateId string `json:"templateId"`
-
-	// Thumbnail Generate thumbnail preview (non-billable)
-	Thumbnail *bool `json:"thumbnail"`
 }
 
 // PostV1TemplatesCreateImageJSONBodyFormat defines parameters for PostV1TemplatesCreateImage.
@@ -450,7 +447,6 @@ type GetV1TemplatesSignedurlParams struct {
 	ApiKeyHashed  *string `form:"apiKeyHashed,omitempty" json:"apiKeyHashed,omitempty"`
 	Sign          string  `form:"sign" json:"sign"`
 	Modifications *string `form:"modifications,omitempty" json:"modifications,omitempty"`
-	Thumbnail     *bool   `form:"thumbnail,omitempty" json:"thumbnail,omitempty"`
 }
 
 // GetV1TemplatesSignedurlParamsFormat defines parameters for GetV1TemplatesSignedurl.

@@ -1,6 +1,6 @@
 module integration
 
-go 1.18
+go 1.24.1
 
 require github.com/bannerify/bannerify-go v0.0.0
 

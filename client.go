@@ -11,14 +11,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"sort"
+	"strings"
 	"time"
 )
 
 const (
 	defaultBaseURL = "https://api.bannerify.co/v1"
 	userAgent      = "bannerify-go/0.1.0"
+	docsURL        = "https://bannerify.co/docs"
 )
 
 var supportedFormats = map[string]struct{}{
@@ -81,18 +82,27 @@ type Response struct {
 	Error  *ErrorResponse
 }
 
-// ErrorResponse represents an error response
+// ErrorResponse is the error object that the API returns. The SDK also uses it
+// for the errors it creates itself, such as INVALID_FORMAT.
 type ErrorResponse struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-	Docs    string `json:"docs"`
+	Code      string `json:"code"`
+	Message   string `json:"message"`
+	Docs      string `json:"docs"`
+	RequestID string `json:"requestId"`
+}
+
+// Error implements the error interface.
+func (e *ErrorResponse) Error() string {
+	if e.RequestID == "" {
+		return fmt.Sprintf("%s: %s", e.Code, e.Message)
+	}
+	return fmt.Sprintf("%s: %s (request %s)", e.Code, e.Message, e.RequestID)
 }
 
 // CreateImageOptions contains options for creating an image
 type CreateImageOptions struct {
 	Modifications []Modification
 	Format        string // "png", "jpeg", or "webp"
-	Thumbnail     bool
 }
 
 // CreateImage generates an image from a template
@@ -103,127 +113,24 @@ func (c *Client) CreateImage(ctx context.Context, templateID string, opts *Creat
 
 	format, err := normalizeFormat(opts.Format)
 	if err != nil {
-		return invalidFormatResponse(err)
+		return sdkError("INVALID_FORMAT", err.Error())
 	}
 
-	payload := map[string]interface{}{
+	return c.post(ctx, "/templates/createImage", map[string]interface{}{
 		"apiKey":        c.apiKey,
 		"templateId":    templateID,
 		"modifications": opts.Modifications,
 		"format":        format,
-		"thumbnail":     opts.Thumbnail,
-	}
-
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "JSON_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/templates/createImage", bytes.NewReader(body))
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "REQUEST_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.apiKey)
-	req.Header.Set("User-Agent", userAgent)
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-	defer resp.Body.Close()
-
-	result, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "READ_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: fmt.Sprintf("HTTP %d: %s", resp.StatusCode, string(result)),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	return &Response{Result: result}
+	})
 }
 
 // CreatePDF generates a PDF from a template
 func (c *Client) CreatePDF(ctx context.Context, templateID string, modifications []Modification) *Response {
-	payload := map[string]interface{}{
+	return c.post(ctx, "/templates/createPdf", map[string]interface{}{
 		"apiKey":        c.apiKey,
 		"templateId":    templateID,
 		"modifications": modifications,
-	}
-
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "JSON_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/templates/createPdf", bytes.NewReader(body))
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "REQUEST_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.apiKey)
-	req.Header.Set("User-Agent", userAgent)
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-	defer resp.Body.Close()
-
-	result, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return &Response{Error: &ErrorResponse{
-			Code:    "READ_ERROR",
-			Message: err.Error(),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return &Response{Error: &ErrorResponse{
-			Code:    "HTTP_ERROR",
-			Message: fmt.Sprintf("HTTP %d", resp.StatusCode),
-			Docs:    "https://bannerify.co/docs",
-		}}
-	}
-
-	return &Response{Result: result}
+	})
 }
 
 // GenerateImageSignedURL generates a signed URL for on-demand image generation
@@ -232,18 +139,17 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 		opts = &CreateImageOptions{}
 	}
 
-	apiKeyHashed := fmt.Sprintf("%x", sha256.Sum256([]byte(c.apiKey)))
-
-	params := url.Values{}
-	params.Set("apiKeyHashed", apiKeyHashed)
-	params.Set("templateId", templateID)
+	params := map[string]string{
+		"apiKeyHashed": fmt.Sprintf("%x", sha256.Sum256([]byte(c.apiKey))),
+		"templateId":   templateID,
+	}
 
 	if opts.Format != "" {
 		format, err := normalizeFormat(opts.Format)
 		if err != nil {
 			return "", err
 		}
-		params.Set("format", format)
+		params["format"] = format
 	}
 
 	if len(opts.Modifications) > 0 {
@@ -251,34 +157,78 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 		if err != nil {
 			return "", err
 		}
-		params.Set("modifications", string(modsJSON))
+		params["modifications"] = string(modsJSON)
 	}
 
-	if opts.Thumbnail {
-		params.Set("thumbnail", "true")
-	}
-
-	// Sort parameters
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	sortedParams := url.Values{}
-	for _, k := range keys {
-		sortedParams.Set(k, params.Get(k))
-	}
-
-	// Generate signature: HMAC keyed with the API key, so the URL can be shared
-	// without exposing anything that can sign a different one.
-	queryString := sortedParams.Encode()
+	// The signature is an HMAC keyed with the API key, so the URL can be shared
+	// without exposing anything that can sign a different one. The server signs
+	// the parameters sorted by name and encoded like URLSearchParams.
+	query := encodeQuery(params)
 	mac := hmac.New(sha256.New, []byte(c.apiKey))
-	mac.Write([]byte(queryString))
-	sign := hex.EncodeToString(mac.Sum(nil))
-	sortedParams.Set("sign", sign)
+	mac.Write([]byte(query))
 
-	return fmt.Sprintf("%s/templates/signedurl?%s", c.baseURL, sortedParams.Encode()), nil
+	return fmt.Sprintf("%s/templates/signedurl?%s&sign=%s", c.baseURL, query, hex.EncodeToString(mac.Sum(nil))), nil
+}
+
+// post sends a JSON request. A 200 response gives its body in Result. Any other
+// outcome gives an Error.
+func (c *Client) post(ctx context.Context, path string, payload map[string]interface{}) *Response {
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return sdkError("JSON_ERROR", err.Error())
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, bytes.NewReader(body))
+	if err != nil {
+		return sdkError("REQUEST_ERROR", err.Error())
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("User-Agent", userAgent)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return sdkError("HTTP_ERROR", err.Error())
+	}
+	defer resp.Body.Close()
+
+	result, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return sdkError("READ_ERROR", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return &Response{Error: parseAPIError(resp.StatusCode, result)}
+	}
+
+	return &Response{Result: result}
+}
+
+// parseAPIError reads the error object of an API response. A body that holds no
+// error object becomes an HTTP_ERROR with the status and the start of the body.
+func parseAPIError(status int, body []byte) *ErrorResponse {
+	var envelope struct {
+		Error *ErrorResponse `json:"error"`
+	}
+	if err := json.Unmarshal(body, &envelope); err == nil && envelope.Error != nil && envelope.Error.Code != "" {
+		return envelope.Error
+	}
+
+	snippet := string(body)
+	if len(snippet) > 200 {
+		snippet = strings.ToValidUTF8(snippet[:200], "")
+	}
+
+	return &ErrorResponse{
+		Code:    "HTTP_ERROR",
+		Message: fmt.Sprintf("HTTP %d: %s", status, snippet),
+		Docs:    docsURL,
+	}
+}
+
+func sdkError(code, message string) *Response {
+	return &Response{Error: &ErrorResponse{Code: code, Message: message, Docs: docsURL}}
 }
 
 func normalizeFormat(format string) (string, error) {
@@ -291,11 +241,44 @@ func normalizeFormat(format string) (string, error) {
 	return "", fmt.Errorf("unsupported format %q. Valid formats: png, jpeg, webp", format)
 }
 
-func invalidFormatResponse(err error) *Response {
-	return &Response{Error: &ErrorResponse{
-		Code:    "INVALID_FORMAT",
-		Message: err.Error(),
-		Docs:    "https://bannerify.co/docs",
-	}}
+// encodeQuery joins the parameters sorted by name, each key and value encoded
+// like URLSearchParams.
+func encodeQuery(params map[string]string) string {
+	keys := make([]string, 0, len(params))
+	for key := range params {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	pairs := make([]string, len(keys))
+	for i, key := range keys {
+		pairs[i] = encodeForm(key) + "=" + encodeForm(params[key])
+	}
+
+	return strings.Join(pairs, "&")
 }
 
+// encodeForm encodes a string like URLSearchParams (application/x-www-form-urlencoded):
+// letters, digits, and * - . _ stay, a space becomes +, and every other byte becomes %XX.
+// url.QueryEscape differs for * and ~, so it cannot sign a URL that the server verifies.
+func encodeForm(value string) string {
+	const hexDigits = "0123456789ABCDEF"
+
+	var encoded strings.Builder
+	for i := 0; i < len(value); i++ {
+		c := value[i]
+		switch {
+		case c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c >= '0' && c <= '9',
+			c == '*', c == '-', c == '.', c == '_':
+			encoded.WriteByte(c)
+		case c == ' ':
+			encoded.WriteByte('+')
+		default:
+			encoded.WriteByte('%')
+			encoded.WriteByte(hexDigits[c>>4])
+			encoded.WriteByte(hexDigits[c&15])
+		}
+	}
+
+	return encoded.String()
+}

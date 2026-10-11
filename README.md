@@ -24,13 +24,15 @@ import (
 	"github.com/bannerify/bannerify-go"
 )
 
+func ptr[T any](value T) *T { return &value }
+
 func main() {
 	client := bannerify.NewClient("your-api-key")
 
 	result := client.CreateImage(context.Background(), "tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
 		Modifications: []bannerify.Modification{
-			{Name: "title", Text: "Hello World"},
-			{Name: "subtitle", Text: "From Go SDK"},
+			{Name: "title", Text: ptr("Hello World")},
+			{Name: "subtitle", Text: ptr("From Go SDK")},
 		},
 	})
 
@@ -39,10 +41,15 @@ func main() {
 		return
 	}
 
-	os.WriteFile("output.png", result.Result, 0644)
+	if err := os.WriteFile("output.png", result.Result, 0644); err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println("Image created successfully!")
 }
 ```
+
+Every `Modification` field except `Name` is a pointer, so the examples below build them with the `ptr` helper from this program.
 
 ## Features
 
@@ -59,32 +66,32 @@ func main() {
 
 ```go
 // Generate PNG
-result := client.CreateImage(ctx, "tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
+png := client.CreateImage(ctx, "tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
 	Modifications: []bannerify.Modification{
-		{Name: "title", Text: "My Title"},
-		{Name: "image", Src: "https://example.com/image.jpg"},
+		{Name: "title", Text: ptr("My Title")},
+		{Name: "image", Src: ptr("https://example.com/image.jpg")},
 	},
 })
 
 // Generate WebP
-result := client.CreateImage(ctx, "tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
+webp := client.CreateImage(ctx, "tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
 	Format: "webp",
 	Modifications: []bannerify.Modification{
-		{Name: "title", Text: "My Title"},
+		{Name: "title", Text: ptr("My Title")},
 	},
 })
 
-// Generate thumbnail
-result := client.CreateImage(ctx, "tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
-	Thumbnail: true,
-})
+if png.Error == nil && webp.Error == nil {
+	os.WriteFile("image.png", png.Result, 0644)
+	os.WriteFile("image.webp", webp.Result, 0644)
+}
 ```
 
 ### Creating PDFs
 
 ```go
 result := client.CreatePDF(ctx, "tpl_xxxxxxxxx", []bannerify.Modification{
-	{Name: "title", Text: "Invoice #123"},
+	{Name: "title", Text: ptr("Invoice #123")},
 })
 
 if result.Error == nil {
@@ -97,7 +104,7 @@ if result.Error == nil {
 ```go
 signedURL, err := client.GenerateImageSignedURL("tpl_xxxxxxxxx", &bannerify.CreateImageOptions{
 	Modifications: []bannerify.Modification{
-		{Name: "title", Text: "Dynamic Title"},
+		{Name: "title", Text: ptr("Dynamic Title")},
 	},
 	Format: "png",
 })
@@ -116,10 +123,15 @@ if result.Error != nil {
 	fmt.Printf("Error Code: %s\n", result.Error.Code)
 	fmt.Printf("Message: %s\n", result.Error.Message)
 	fmt.Printf("Docs: %s\n", result.Error.Docs)
+	fmt.Printf("Request ID: %s\n", result.Error.RequestID)
 } else {
 	os.WriteFile("output.png", result.Result, 0644)
 }
 ```
+
+When the API answers with an error, `result.Error` holds the `code`, `message`, `docs`, and `requestId` of its error object. Send the request id when you report a problem. `*ErrorResponse` also implements `error`, so `fmt.Println(result.Error)` prints `BAD_REQUEST: Invalid api key (request req:abc123)`.
+
+The SDK creates a few errors itself: `INVALID_FORMAT`, `JSON_ERROR`, `REQUEST_ERROR`, `READ_ERROR`, and `HTTP_ERROR` for a failed connection or for a response that holds no API error.
 
 ### Custom Configuration
 
@@ -172,8 +184,8 @@ products := []struct {
 for i, product := range products {
 	result := client.CreateImage(ctx, "tpl_product_banner", &bannerify.CreateImageOptions{
 		Modifications: []bannerify.Modification{
-			{Name: "product_name", Text: product.Name},
-			{Name: "price", Text: product.Price},
+			{Name: "product_name", Text: ptr(product.Name)},
+			{Name: "price", Text: ptr(product.Price)},
 		},
 	})
 	
@@ -186,13 +198,19 @@ for i, product := range products {
 ### Email Campaigns
 
 ```go
+recipients := []struct{ Name string }{{"Ada"}, {"Linus"}}
+
 for _, recipient := range recipients {
-	signedURL, _ := client.GenerateImageSignedURL("tpl_email_header", &bannerify.CreateImageOptions{
+	signedURL, err := client.GenerateImageSignedURL("tpl_email_header", &bannerify.CreateImageOptions{
 		Modifications: []bannerify.Modification{
-			{Name: "name", Text: fmt.Sprintf("Hi, %s!", recipient.Name)},
+			{Name: "name", Text: ptr(fmt.Sprintf("Hi, %s!", recipient.Name))},
 		},
 	})
+	if err != nil {
+		continue
+	}
 	// Use signedURL in email HTML
+	fmt.Println(signedURL)
 }
 ```
 

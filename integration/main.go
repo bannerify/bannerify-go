@@ -18,7 +18,8 @@ func main() {
 		return
 	}
 
-	fmt.Println("Running Bannerify Go SDK integration tests...\n")
+	fmt.Println("Running Bannerify Go SDK integration tests...")
+	fmt.Println()
 
 	ctx := context.Background()
 	failed := false
@@ -36,7 +37,7 @@ func main() {
 	fmt.Print("Test 2: Generating signed URL... ")
 	signedURL, err := client.GenerateImageSignedURL(templateID, &bannerify.CreateImageOptions{
 		Modifications: []bannerify.Modification{
-			{Name: "title", Text: "Integration Test"},
+			{Name: "title", Text: strPtr("Integration Test")},
 		},
 	})
 	if err != nil {
@@ -55,7 +56,7 @@ func main() {
 	result := client.CreateImage(ctx, templateID, &bannerify.CreateImageOptions{
 		Format: "jpeg",
 		Modifications: []bannerify.Modification{
-			{Name: "title", Text: "Go SDK JPEG Test"},
+			{Name: "title", Text: strPtr("Go SDK JPEG Test")},
 		},
 	})
 	if result.Error != nil {
@@ -75,7 +76,7 @@ func main() {
 	fmt.Print("Test 4: Creating image (PNG format)... ")
 	result = client.CreateImage(ctx, templateID, &bannerify.CreateImageOptions{
 		Modifications: []bannerify.Modification{
-			{Name: "title", Text: "Go SDK Test PNG"},
+			{Name: "title", Text: strPtr("Go SDK Test PNG")},
 		},
 	})
 	if result.Error != nil {
@@ -108,4 +109,8 @@ func main() {
 	}
 
 	fmt.Println("\n✅ All integration tests passed!")
+}
+
+func strPtr(s string) *string {
+	return &s
 }

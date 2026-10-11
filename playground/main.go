@@ -32,7 +32,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("🎨 Bannerify Go SDK Playground\n")
+	fmt.Println("🎨 Bannerify Go SDK Playground")
+	fmt.Println()
 
 	// Create output directory
 	outputDir := "playground/output"
