@@ -114,6 +114,31 @@ if err == nil {
 }
 ```
 
+### Rendering Videos
+
+A video template renders as an MP4. Each second of the video counts as one generation.
+
+```go
+// Follow the render: queued, progress, then done or error
+for event := range client.RenderVideo(ctx, "tpl_xxxxxxxxx", []bannerify.Modification{
+	{Name: "title", Text: ptr("Hi")},
+}) {
+	switch event.Type {
+	case "progress":
+		fmt.Printf("%.0f%%\n", event.Progress*100)
+	case "done":
+		fmt.Println(event.URL)
+	case "error":
+		fmt.Println(event.Error)
+	}
+}
+
+// Or wait for the URL of the MP4
+url, err := client.RenderAndWaitVideo(ctx, "tpl_xxxxxxxxx", nil)
+```
+
+The client timeout does not apply to a render, because a video can wait in line for minutes. Cancel `ctx` to stop.
+
 ### Error Handling
 
 ```go
@@ -160,6 +185,18 @@ func (c *Client) CreateImage(ctx context.Context, templateID string, opts *Creat
 
 ```go
 func (c *Client) CreatePDF(ctx context.Context, templateID string, modifications []Modification) *Response
+```
+
+### RenderVideo
+
+```go
+func (c *Client) RenderVideo(ctx context.Context, templateID string, modifications []Modification) iter.Seq[RenderVideoEvent]
+```
+
+### RenderAndWaitVideo
+
+```go
+func (c *Client) RenderAndWaitVideo(ctx context.Context, templateID string, modifications []Modification) (string, error)
 ```
 
 ### GenerateImageSignedURL

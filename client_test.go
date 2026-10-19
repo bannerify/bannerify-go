@@ -255,3 +255,90 @@ func TestCreateImageRejectsAnUnsupportedFormatWithoutARequest(t *testing.T) {
 		t.Errorf("error = %+v", response.Error)
 	}
 }
+
+func sseBody(events ...string) string {
+	var body strings.Builder
+	for _, event := range events {
+		body.WriteString("data: " + event + "\n\n")
+	}
+	return body.String()
+}
+
+const doneEvent = `{"type":"done","url":"https://images.bannerify.co/files/a.mp4"}`
+
+func TestRenderVideoStreamsTheEventsOfTheRender(t *testing.T) {
+	var body map[string]interface{}
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/templates/renderVideo" || r.URL.Query().Get("stream") != "true" {
+			t.Errorf("url = %s", r.URL)
+		}
+		raw, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(raw, &body)
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte(sseBody(
+			`{"type":"queued","ahead":1}`,
+			`{"type":"progress","frame":30,"totalFrames":60,"progress":0.5}`,
+			doneEvent,
+		)))
+	})
+
+	title := "Hi"
+	var events []RenderVideoEvent
+	for event := range client.RenderVideo(context.Background(), "tpl_x", []Modification{{Name: "Title", Text: &title}}) {
+		events = append(events, event)
+	}
+
+	want := []RenderVideoEvent{
+		{Type: "queued", Ahead: 1},
+		{Type: "progress", Frame: 30, TotalFrames: 60, Progress: 0.5},
+		{Type: "done", URL: "https://images.bannerify.co/files/a.mp4"},
+	}
+	if len(events) != len(want) {
+		t.Fatalf("events = %+v", events)
+	}
+	for i := range want {
+		if events[i] != want[i] {
+			t.Errorf("event %d = %+v, want %+v", i, events[i], want[i])
+		}
+	}
+	modifications, _ := json.Marshal(body["modifications"])
+	if body["templateId"] != "tpl_x" || string(modifications) != `[{"name":"Title","text":"Hi"}]` {
+		t.Errorf("body = %v", body)
+	}
+}
+
+func TestRenderVideoTurnsARefusedRequestIntoOneErrorEvent(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusPreconditionFailed)
+		_, _ = w.Write([]byte(`{"error":{"code":"PRECONDITION_FAILED","message":"Video rendering is not available yet.","docs":"","requestId":"req_1"}}`))
+	})
+
+	var events []RenderVideoEvent
+	for event := range client.RenderVideo(context.Background(), "tpl_x", nil) {
+		events = append(events, event)
+	}
+
+	if len(events) != 1 || events[0].Type != "error" || events[0].Error.Code != "PRECONDITION_FAILED" || events[0].Error.RequestID != "req_1" {
+		t.Errorf("events = %+v", events)
+	}
+}
+
+func TestRenderAndWaitVideoReturnsTheURLOrTheError(t *testing.T) {
+	waited := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(sseBody(`{"type":"queued","ahead":0}`, doneEvent)))
+	})
+	url, err := waited.RenderAndWaitVideo(context.Background(), "tpl_x", nil)
+	if err != nil || url != "https://images.bannerify.co/files/a.mp4" {
+		t.Errorf("url = %q, err = %v", url, err)
+	}
+
+	failed := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(sseBody(`{"type":"error","error":{"code":"INTERNAL_SERVER_ERROR","message":"Could not download a clip.","requestId":"req_2"}}`)))
+	})
+	_, err = failed.RenderAndWaitVideo(context.Background(), "tpl_x", nil)
+	var apiError *ErrorResponse
+	if !errors.As(err, &apiError) || apiError.Message != "Could not download a clip." {
+		t.Errorf("err = %v", err)
+	}
+}

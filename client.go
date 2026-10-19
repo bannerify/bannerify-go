@@ -2,6 +2,7 @@
 package bannerify
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/hmac"
@@ -10,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"iter"
 	"net/http"
 	"sort"
 	"strings"
@@ -168,6 +170,109 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 	mac.Write([]byte(query))
 
 	return fmt.Sprintf("%s/templates/signedurl?%s&sign=%s", c.baseURL, query, hex.EncodeToString(mac.Sum(nil))), nil
+}
+
+// RenderVideoEvent is one event of a video render. Type is "queued" (Ahead
+// renders wait before it), "progress" (Frame of TotalFrames rendered, Progress
+// from 0 to 1), "done" (URL of the MP4) or "error" (Error).
+type RenderVideoEvent struct {
+	Type        string         `json:"type"`
+	Ahead       int            `json:"ahead,omitempty"`
+	Frame       int            `json:"frame,omitempty"`
+	TotalFrames int            `json:"totalFrames,omitempty"`
+	Progress    float64        `json:"progress,omitempty"`
+	URL         string         `json:"url,omitempty"`
+	Error       *ErrorResponse `json:"error,omitempty"`
+}
+
+// RenderVideo renders a video template as an MP4 and streams the events of the
+// render. The last event is "done" or "error". Each second of the video counts
+// as one generation. Cancel ctx to stop following the render.
+func (c *Client) RenderVideo(ctx context.Context, templateID string, modifications []Modification) iter.Seq[RenderVideoEvent] {
+	return func(yield func(RenderVideoEvent) bool) {
+		failed := func(response *Response) {
+			yield(RenderVideoEvent{Type: "error", Error: response.Error})
+		}
+
+		if modifications == nil {
+			modifications = []Modification{}
+		}
+		body, err := json.Marshal(map[string]interface{}{
+			"apiKey":        c.apiKey,
+			"templateId":    templateID,
+			"modifications": modifications,
+		})
+		if err != nil {
+			failed(sdkError("JSON_ERROR", err.Error()))
+			return
+		}
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/templates/renderVideo?stream=true", bytes.NewReader(body))
+		if err != nil {
+			failed(sdkError("REQUEST_ERROR", err.Error()))
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "text/event-stream")
+		req.Header.Set("Authorization", "Bearer "+c.apiKey)
+		req.Header.Set("User-Agent", userAgent)
+
+		// A render can wait in line for minutes, so the client timeout does not
+		// apply to the stream; ctx still ends it.
+		streaming := *c.httpClient
+		streaming.Timeout = 0
+		resp, err := streaming.Do(req)
+		if err != nil {
+			failed(sdkError("HTTP_ERROR", err.Error()))
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			result, _ := io.ReadAll(resp.Body)
+			yield(RenderVideoEvent{Type: "error", Error: parseAPIError(resp.StatusCode, result)})
+			return
+		}
+
+		scanner := bufio.NewScanner(resp.Body)
+		var data []string
+		for scanner.Scan() {
+			line := scanner.Text()
+			if value, ok := strings.CutPrefix(line, "data:"); ok {
+				data = append(data, strings.TrimSpace(value))
+				continue
+			}
+			if line != "" || len(data) == 0 {
+				continue
+			}
+			var event RenderVideoEvent
+			if err := json.Unmarshal([]byte(strings.Join(data, "\n")), &event); err != nil {
+				failed(sdkError("JSON_ERROR", err.Error()))
+				return
+			}
+			data = nil
+			if !yield(event) {
+				return
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			failed(sdkError("READ_ERROR", err.Error()))
+		}
+	}
+}
+
+// RenderAndWaitVideo renders a video template as an MP4 and returns its URL
+// when it is stored. The error is an *ErrorResponse.
+func (c *Client) RenderAndWaitVideo(ctx context.Context, templateID string, modifications []Modification) (string, error) {
+	for event := range c.RenderVideo(ctx, templateID, modifications) {
+		switch event.Type {
+		case "done":
+			return event.URL, nil
+		case "error":
+			return "", event.Error
+		}
+	}
+	return "", sdkError("STREAM_ENDED", "the render ended before the video was done").Error
 }
 
 // post sends a JSON request. A 200 response gives its body in Result. Any other
