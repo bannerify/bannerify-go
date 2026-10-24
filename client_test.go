@@ -324,6 +324,115 @@ func TestRenderVideoTurnsARefusedRequestIntoOneErrorEvent(t *testing.T) {
 	}
 }
 
+func TestRenderVideoReadsTheSameVideoAgainByItsIDWhenTheStreamDrops(t *testing.T) {
+	var requests []string
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		requests = append(requests, r.Method+" "+r.URL.Path)
+		if r.Method == http.MethodPost {
+			_, _ = w.Write([]byte(sseBody(`{"type":"created","id":"vid_1"}`, `{"type":"queued","ahead":0}`)))
+			w.(http.Flusher).Flush()
+			// Drop the connection like a lost network.
+			panic(http.ErrAbortHandler)
+		}
+		if r.URL.Query().Get("stream") != "true" || r.URL.Query().Get("apiKey") != "test-key" {
+			t.Errorf("url = %s", r.URL)
+		}
+		_, _ = w.Write([]byte(sseBody(`{"type":"progress","frame":60,"totalFrames":60,"progress":1}`, doneEvent)))
+	})
+
+	var types []string
+	for event := range client.RenderVideo(context.Background(), "tpl_x", nil) {
+		types = append(types, event.Type)
+	}
+
+	if strings.Join(types, ",") != "created,queued,progress,done" {
+		t.Errorf("events = %v", types)
+	}
+	if strings.Join(requests, ",") != "POST /templates/renderVideo,GET /videos/vid_1" {
+		t.Errorf("requests = %v", requests)
+	}
+}
+
+func TestRenderVideoDoesNotSendTheRenderAgainWhenItFailsBeforeTheVideoHasAnID(t *testing.T) {
+	requests := 0
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"error":{"code":"INTERNAL_SERVER_ERROR","message":"Refused.","docs":"","requestId":"r"}}`))
+	})
+
+	var events []RenderVideoEvent
+	for event := range client.RenderVideo(context.Background(), "tpl_x", nil) {
+		events = append(events, event)
+	}
+
+	if len(events) != 1 || events[0].Type != "error" || events[0].Error.Code != "INTERNAL_SERVER_ERROR" {
+		t.Errorf("events = %+v", events)
+	}
+	if requests != 1 {
+		t.Errorf("requests = %d", requests)
+	}
+}
+
+func TestGetVideoReturnsTheStatusAndTheURLOfAVideo(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/videos/vid_1" || r.URL.Query().Get("apiKey") != "test-key" {
+			t.Errorf("url = %s", r.URL)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"id":"vid_1","status":"done","url":"https://images.bannerify.co/files/a.mp4"}`))
+	})
+
+	video, err := client.GetVideo(context.Background(), "vid_1")
+	if err != nil || *video != (Video{ID: "vid_1", Status: "done", URL: "https://images.bannerify.co/files/a.mp4"}) {
+		t.Errorf("video = %+v, err = %v", video, err)
+	}
+}
+
+func TestGetVideoReturnsTheAPIError(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"error":{"code":"NOT_FOUND","message":"Video not found","docs":"","requestId":"req_3"}}`))
+	})
+
+	_, err := client.GetVideo(context.Background(), "vid_x")
+	var apiError *ErrorResponse
+	if !errors.As(err, &apiError) || apiError.Code != "NOT_FOUND" {
+		t.Errorf("err = %v", err)
+	}
+}
+
+func TestCreateVideoReturnsTheIDOfTheVideoAtOnce(t *testing.T) {
+	requests := 0
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		if r.Method != http.MethodPost || r.URL.Path != "/templates/renderVideo" || r.URL.Query().Get("wait") != "false" {
+			t.Errorf("request = %s %s", r.Method, r.URL)
+		}
+		var body struct {
+			TemplateID    string         `json:"templateId"`
+			Modifications []Modification `json:"modifications"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.TemplateID != "tpl_x" || len(body.Modifications) != 1 {
+			t.Errorf("body = %+v, err = %v", body, err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
+		_, _ = w.Write([]byte(`{"id":"vid_1","status":"queued"}`))
+	})
+
+	text := "Hi"
+	created, err := client.CreateVideo(context.Background(), "tpl_x", []Modification{{Name: "title", Text: &text}})
+	if err != nil || *created != (CreatedVideo{ID: "vid_1", Status: "queued"}) {
+		t.Errorf("created = %+v, err = %v", created, err)
+	}
+	if requests != 1 {
+		t.Errorf("requests = %d", requests)
+	}
+}
+
 func TestRenderAndWaitVideoReturnsTheURLOrTheError(t *testing.T) {
 	waited := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(sseBody(`{"type":"queued","ahead":0}`, doneEvent)))

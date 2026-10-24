@@ -13,6 +13,7 @@ import (
 	"io"
 	"iter"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 	"time"
@@ -172,11 +173,13 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 	return fmt.Sprintf("%s/templates/signedurl?%s&sign=%s", c.baseURL, query, hex.EncodeToString(mac.Sum(nil))), nil
 }
 
-// RenderVideoEvent is one event of a video render. Type is "queued" (Ahead
-// renders wait before it), "progress" (Frame of TotalFrames rendered, Progress
-// from 0 to 1), "done" (URL of the MP4) or "error" (Error).
+// RenderVideoEvent is one event of a video render. Type is "created" (ID of the
+// video), "queued" (Ahead renders wait before it), "progress" (Frame of
+// TotalFrames rendered, Progress from 0 to 1), "done" (URL of the MP4) or
+// "error" (Error).
 type RenderVideoEvent struct {
 	Type        string         `json:"type"`
+	ID          string         `json:"id,omitempty"`
 	Ahead       int            `json:"ahead,omitempty"`
 	Frame       int            `json:"frame,omitempty"`
 	TotalFrames int            `json:"totalFrames,omitempty"`
@@ -185,16 +188,28 @@ type RenderVideoEvent struct {
 	Error       *ErrorResponse `json:"error,omitempty"`
 }
 
+// Video is a video of RenderVideo, read again with GetVideo. Status is
+// "queued", "rendering", "done" or "failed".
+type Video struct {
+	ID     string `json:"id"`
+	Status string `json:"status"`
+	// URL of the MP4, once the video is done.
+	URL string `json:"url,omitempty"`
+	// Error tells why the video failed.
+	Error string `json:"error,omitempty"`
+}
+
+// reconnectDelays are the waits before each new read of a video whose stream
+// dropped.
+var reconnectDelays = []time.Duration{time.Second, 2 * time.Second, 4 * time.Second, 8 * time.Second}
+
 // RenderVideo renders a video template as an MP4 and streams the events of the
 // render. The last event is "done" or "error". Each second of the video counts
-// as one generation, and as two at 60 fps. Cancel ctx to stop following the
+// as one generation. When the stream drops, it reads the same video again by
+// its ID, so the video does not render twice. Cancel ctx to stop following the
 // render.
 func (c *Client) RenderVideo(ctx context.Context, templateID string, modifications []Modification) iter.Seq[RenderVideoEvent] {
 	return func(yield func(RenderVideoEvent) bool) {
-		failed := func(response *Response) {
-			yield(RenderVideoEvent{Type: "error", Error: response.Error})
-		}
-
 		if modifications == nil {
 			modifications = []Modification{}
 		}
@@ -204,62 +219,197 @@ func (c *Client) RenderVideo(ctx context.Context, templateID string, modificatio
 			"modifications": modifications,
 		})
 		if err != nil {
-			failed(sdkError("JSON_ERROR", err.Error()))
+			yield(RenderVideoEvent{Type: "error", Error: sdkError("JSON_ERROR", err.Error()).Error})
 			return
 		}
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/templates/renderVideo?stream=true", bytes.NewReader(body))
+		c.followVideo(ctx, "", func() (*http.Request, error) {
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/templates/renderVideo?stream=true", bytes.NewReader(body))
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Content-Type", "application/json")
+			return req, nil
+		}, yield)
+	}
+}
+
+// CreatedVideo is a video that CreateVideo started.
+type CreatedVideo struct {
+	ID string `json:"id"`
+	// Status is "queued".
+	Status string `json:"status"`
+}
+
+// CreateVideo starts the render of a video template and returns its ID at once.
+// It does not send the request again, because a second request renders a second
+// video. Read the video later with GetVideo or WatchVideo. The error is an
+// *ErrorResponse.
+func (c *Client) CreateVideo(ctx context.Context, templateID string, modifications []Modification) (*CreatedVideo, error) {
+	if modifications == nil {
+		modifications = []Modification{}
+	}
+	body, err := json.Marshal(map[string]interface{}{
+		"apiKey":        c.apiKey,
+		"templateId":    templateID,
+		"modifications": modifications,
+	})
+	if err != nil {
+		return nil, sdkError("JSON_ERROR", err.Error()).Error
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/templates/renderVideo?wait=false", bytes.NewReader(body))
+	if err != nil {
+		return nil, sdkError("REQUEST_ERROR", err.Error()).Error
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	response := c.do(req)
+	if response.Error != nil {
+		return nil, response.Error
+	}
+
+	var created CreatedVideo
+	if err := json.Unmarshal(response.Result, &created); err != nil {
+		return nil, sdkError("JSON_ERROR", err.Error()).Error
+	}
+	return &created, nil
+}
+
+// WatchVideo streams the events of the video id again, from its latest one, as
+// RenderVideo does. Cancel ctx to stop following the video.
+func (c *Client) WatchVideo(ctx context.Context, id string) iter.Seq[RenderVideoEvent] {
+	return func(yield func(RenderVideoEvent) bool) {
+		c.followVideo(ctx, id, nil, yield)
+	}
+}
+
+// GetVideo reads the status of the video id, and its URL once it is done. The
+// error is an *ErrorResponse.
+func (c *Client) GetVideo(ctx context.Context, id string) (*Video, error) {
+	req, err := c.videoRequest(ctx, id, false)
+	if err != nil {
+		return nil, sdkError("REQUEST_ERROR", err.Error()).Error
+	}
+
+	response := c.do(req)
+	if response.Error != nil {
+		return nil, response.Error
+	}
+
+	var video Video
+	if err := json.Unmarshal(response.Result, &video); err != nil {
+		return nil, sdkError("JSON_ERROR", err.Error()).Error
+	}
+	return &video, nil
+}
+
+// followVideo yields the events of a video until "done" or "error". The first
+// request is render when it is not nil, else a read of the video id. When the
+// stream drops, it waits and reads the video again by its ID (from "created").
+// It never sends render again, because that renders and bills a second video.
+func (c *Client) followVideo(ctx context.Context, id string, render func() (*http.Request, error), yield func(RenderVideoEvent) bool) {
+	for attempt := 0; ; attempt++ {
+		var req *http.Request
+		var err error
+		if render != nil {
+			req, err = render()
+		} else {
+			req, err = c.videoRequest(ctx, id, true)
+		}
 		if err != nil {
-			failed(sdkError("REQUEST_ERROR", err.Error()))
-			return
-		}
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Accept", "text/event-stream")
-		req.Header.Set("Authorization", "Bearer "+c.apiKey)
-		req.Header.Set("User-Agent", userAgent)
-
-		// A render can wait in line for minutes, so the client timeout does not
-		// apply to the stream; ctx still ends it.
-		streaming := *c.httpClient
-		streaming.Timeout = 0
-		resp, err := streaming.Do(req)
-		if err != nil {
-			failed(sdkError("HTTP_ERROR", err.Error()))
-			return
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			result, _ := io.ReadAll(resp.Body)
-			yield(RenderVideoEvent{Type: "error", Error: parseAPIError(resp.StatusCode, result)})
+			yield(RenderVideoEvent{Type: "error", Error: sdkError("REQUEST_ERROR", err.Error()).Error})
 			return
 		}
 
-		scanner := bufio.NewScanner(resp.Body)
-		var data []string
-		for scanner.Scan() {
-			line := scanner.Text()
-			if value, ok := strings.CutPrefix(line, "data:"); ok {
-				data = append(data, strings.TrimSpace(value))
-				continue
-			}
-			if line != "" || len(data) == 0 {
-				continue
-			}
-			var event RenderVideoEvent
-			if err := json.Unmarshal([]byte(strings.Join(data, "\n")), &event); err != nil {
-				failed(sdkError("JSON_ERROR", err.Error()))
-				return
-			}
-			data = nil
-			if !yield(event) {
-				return
-			}
+		if c.streamVideoEvents(req, render == nil, &id, yield) {
+			return
 		}
-		if err := scanner.Err(); err != nil {
-			failed(sdkError("READ_ERROR", err.Error()))
+		if err := ctx.Err(); err != nil {
+			yield(RenderVideoEvent{Type: "error", Error: sdkError("HTTP_ERROR", err.Error()).Error})
+			return
+		}
+		if id == "" || attempt == len(reconnectDelays) {
+			message := "lost the connection before the video got an ID"
+			if id != "" {
+				message = fmt.Sprintf("lost the connection to the video %s; read it again with GetVideo", id)
+			}
+			yield(RenderVideoEvent{Type: "error", Error: sdkError("TIMEOUT_ERROR", message).Error})
+			return
+		}
+
+		// A cancelled ctx ends the wait, and the next request fails at once.
+		select {
+		case <-ctx.Done():
+		case <-time.After(reconnectDelays[attempt]):
+		}
+		render = nil
+	}
+}
+
+// streamVideoEvents sends req and yields the events of its stream. It sets id
+// from a "created" event. It returns true when it yielded the last event or the
+// caller stopped, and false when the connection dropped. A refused request is
+// the last event, except a server error when retryServerErrors is true.
+func (c *Client) streamVideoEvents(req *http.Request, retryServerErrors bool, id *string, yield func(RenderVideoEvent) bool) bool {
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("User-Agent", userAgent)
+
+	// A render can wait in line for minutes, so the client timeout does not
+	// apply to the stream; ctx still ends it.
+	streaming := *c.httpClient
+	streaming.Timeout = 0
+	resp, err := streaming.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		if retryServerErrors && resp.StatusCode >= http.StatusInternalServerError {
+			return false
+		}
+		result, _ := io.ReadAll(resp.Body)
+		yield(RenderVideoEvent{Type: "error", Error: parseAPIError(resp.StatusCode, result)})
+		return true
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+	var data []string
+	for scanner.Scan() {
+		line := scanner.Text()
+		if value, ok := strings.CutPrefix(line, "data:"); ok {
+			data = append(data, strings.TrimSpace(value))
+			continue
+		}
+		if line != "" || len(data) == 0 {
+			continue
+		}
+		var event RenderVideoEvent
+		if err := json.Unmarshal([]byte(strings.Join(data, "\n")), &event); err != nil {
+			yield(RenderVideoEvent{Type: "error", Error: sdkError("JSON_ERROR", err.Error()).Error})
+			return true
+		}
+		data = nil
+		if event.Type == "created" {
+			*id = event.ID
+		}
+		if !yield(event) || event.Type == "done" || event.Type == "error" {
+			return true
 		}
 	}
+	return false
+}
+
+// videoRequest builds the request that reads the video id, or streams its
+// events.
+func (c *Client) videoRequest(ctx context.Context, id string, stream bool) (*http.Request, error) {
+	query := url.Values{"apiKey": {c.apiKey}}
+	if stream {
+		query.Set("stream", "true")
+	}
+	return http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/videos/"+url.PathEscape(id)+"?"+query.Encode(), nil)
 }
 
 // RenderAndWaitVideo renders a video template as an MP4 and returns its URL
@@ -288,8 +438,14 @@ func (c *Client) post(ctx context.Context, path string, payload map[string]inter
 	if err != nil {
 		return sdkError("REQUEST_ERROR", err.Error())
 	}
-
 	req.Header.Set("Content-Type", "application/json")
+
+	return c.do(req)
+}
+
+// do sends a request. A 200 response gives its body in Result. Any other
+// outcome gives an Error.
+func (c *Client) do(req *http.Request) *Response {
 	req.Header.Set("Authorization", "Bearer "+c.apiKey)
 	req.Header.Set("User-Agent", userAgent)
 
@@ -304,7 +460,7 @@ func (c *Client) post(ctx context.Context, path string, payload map[string]inter
 		return sdkError("READ_ERROR", err.Error())
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return &Response{Error: parseAPIError(resp.StatusCode, result)}
 	}
 

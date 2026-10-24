@@ -119,7 +119,7 @@ if err == nil {
 A video template renders as an MP4. Each second of the video counts as one generation, and as two at 60 fps.
 
 ```go
-// Follow the render: queued, progress, then done or error
+// Follow the render: created, queued, progress, then done or error
 for event := range client.RenderVideo(ctx, "tpl_xxxxxxxxx", []bannerify.Modification{
 	{Name: "title", Text: ptr("Hi")},
 }) {
@@ -138,6 +138,25 @@ url, err := client.RenderAndWaitVideo(ctx, "tpl_xxxxxxxxx", nil)
 ```
 
 The client timeout does not apply to a render, because a video can wait in line for minutes. Cancel `ctx` to stop.
+
+The `created` event gives the `ID` of the video. The video renders to its end even when the connection drops. Then `RenderVideo` reads the same video again by its ID: it waits 1, 2, 4 and 8 seconds before each of 4 attempts, and it never sends the render again. When the attempts run out, the last event is an `error` with the code `TIMEOUT_ERROR`.
+
+```go
+// Start the video and get its ID at once, without waiting
+created, err := client.CreateVideo(ctx, "tpl_xxxxxxxxx", nil) // created.ID, created.Status == "queued"
+```
+
+`CreateVideo` sends the render once and never again, because a second request renders a second video.
+
+```go
+// Read the video later by its ID
+video, err := client.GetVideo(ctx, "vid_xxx") // video.Status, video.URL
+
+// Follow its events again, from the latest one
+for event := range client.WatchVideo(ctx, "vid_xxx") {
+	fmt.Println(event.Type)
+}
+```
 
 ### Error Handling
 
@@ -198,6 +217,30 @@ func (c *Client) RenderVideo(ctx context.Context, templateID string, modificatio
 ```go
 func (c *Client) RenderAndWaitVideo(ctx context.Context, templateID string, modifications []Modification) (string, error)
 ```
+
+### WatchVideo
+
+```go
+func (c *Client) WatchVideo(ctx context.Context, id string) iter.Seq[RenderVideoEvent]
+```
+
+Yields the events of `RenderVideo` again, from the latest one, without `created`.
+
+### CreateVideo
+
+```go
+func (c *Client) CreateVideo(ctx context.Context, templateID string, modifications []Modification) (*CreatedVideo, error)
+```
+
+Starts the video and returns its `ID` at once. `CreatedVideo.Status` is `queued`. The error is an `*ErrorResponse`.
+
+### GetVideo
+
+```go
+func (c *Client) GetVideo(ctx context.Context, id string) (*Video, error)
+```
+
+`Video.Status` is `queued`, `rendering`, `done` or `failed`. The error is an `*ErrorResponse`.
 
 ### GenerateImageSignedURL
 
