@@ -205,9 +205,9 @@ var reconnectDelays = []time.Duration{time.Second, 2 * time.Second, 4 * time.Sec
 
 // RenderVideo renders a video template as an MP4 and streams the events of the
 // render. The last event is "done" or "error". Each second of the video counts
-// as one generation. When the stream drops, it reads the same video again by
-// its ID, so the video does not render twice. Cancel ctx to stop following the
-// render.
+// as one generation, and as two at 60 fps. When the stream drops, it reads the
+// same video again by its ID, so the video does not render twice. Cancel ctx to
+// stop following the render.
 func (c *Client) RenderVideo(ctx context.Context, templateID string, modifications []Modification) iter.Seq[RenderVideoEvent] {
 	return func(yield func(RenderVideoEvent) bool) {
 		if modifications == nil {
