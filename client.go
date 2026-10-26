@@ -142,10 +142,7 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 		opts = &CreateImageOptions{}
 	}
 
-	params := map[string]string{
-		"apiKeyHashed": fmt.Sprintf("%x", sha256.Sum256([]byte(c.apiKey))),
-		"templateId":   templateID,
-	}
+	params := map[string]string{}
 
 	if opts.Format != "" {
 		format, err := normalizeFormat(opts.Format)
@@ -163,6 +160,57 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 		params["modifications"] = string(modsJSON)
 	}
 
+	return c.signedURL(templateID, params), nil
+}
+
+// VideoSignedURLOptions are the options of GenerateVideoSignedURL.
+type VideoSignedURLOptions struct {
+	Modifications []Modification
+	// Format is "m3u8" (the default), the video link, or "mp4", the MP4 file.
+	Format  string
+	NoCache bool
+}
+
+// GenerateVideoSignedURL generates a signed URL of a video template, without a
+// request. With "m3u8" (the default) it is the video link, an HLS playlist that
+// starts to play while the video renders. With "mp4" it redirects to the MP4
+// once it rendered, for videos of up to 15 seconds.
+func (c *Client) GenerateVideoSignedURL(templateID string, opts *VideoSignedURLOptions) (string, error) {
+	if opts == nil {
+		opts = &VideoSignedURLOptions{}
+	}
+
+	params := map[string]string{}
+
+	switch opts.Format {
+	case "":
+	case "m3u8", "mp4":
+		params["format"] = opts.Format
+	default:
+		return "", fmt.Errorf("unsupported format %q. Valid formats: m3u8, mp4", opts.Format)
+	}
+
+	if len(opts.Modifications) > 0 {
+		modsJSON, err := json.Marshal(opts.Modifications)
+		if err != nil {
+			return "", err
+		}
+		params["modifications"] = string(modsJSON)
+	}
+
+	if opts.NoCache {
+		params["nocache"] = "true"
+	}
+
+	return c.signedURL(templateID, params), nil
+}
+
+// signedURL is the URL of /templates/signedurl with the parameters, signed with
+// the API key.
+func (c *Client) signedURL(templateID string, params map[string]string) string {
+	params["apiKeyHashed"] = fmt.Sprintf("%x", sha256.Sum256([]byte(c.apiKey)))
+	params["templateId"] = templateID
+
 	// The signature is an HMAC keyed with the API key, so the URL can be shared
 	// without exposing anything that can sign a different one. The server signs
 	// the parameters sorted by name and encoded like URLSearchParams.
@@ -170,7 +218,7 @@ func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOpti
 	mac := hmac.New(sha256.New, []byte(c.apiKey))
 	mac.Write([]byte(query))
 
-	return fmt.Sprintf("%s/templates/signedurl?%s&sign=%s", c.baseURL, query, hex.EncodeToString(mac.Sum(nil))), nil
+	return fmt.Sprintf("%s/templates/signedurl?%s&sign=%s", c.baseURL, query, hex.EncodeToString(mac.Sum(nil)))
 }
 
 // RenderVideoEvent is one event of a video render. Type is "created" (ID of the

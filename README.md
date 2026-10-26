@@ -158,6 +158,25 @@ for event := range client.WatchVideo(ctx, "vid_xxx") {
 }
 ```
 
+### Video Links
+
+A signed URL of a video template plays the video without a request from your server. The video link (`m3u8`, the default) is an HLS playlist: it starts to play while the video renders, and plays at once when the same video rendered before. An edit renders again only the seconds it changes. `mp4` redirects to the MP4 once it rendered, for videos of up to 15 seconds. Video links are for the Scale and Enterprise plans.
+
+```go
+videoURL, err := client.GenerateVideoSignedURL("tpl_xxxxxxxxx", &bannerify.VideoSignedURLOptions{
+	Modifications: []bannerify.Modification{
+		{Name: "title", Text: ptr("Dynamic Title")},
+	},
+})
+
+// Safari plays HLS in a <video>; other browsers need an HLS player such as hls.js
+if err == nil {
+	fmt.Printf("<video src='%s' controls></video>", videoURL)
+}
+
+mp4URL, err := client.GenerateVideoSignedURL("tpl_xxxxxxxxx", &bannerify.VideoSignedURLOptions{Format: "mp4"})
+```
+
 ### Error Handling
 
 ```go
@@ -246,6 +265,12 @@ func (c *Client) GetVideo(ctx context.Context, id string) (*Video, error)
 
 ```go
 func (c *Client) GenerateImageSignedURL(templateID string, opts *CreateImageOptions) (string, error)
+```
+
+### GenerateVideoSignedURL
+
+```go
+func (c *Client) GenerateVideoSignedURL(templateID string, opts *VideoSignedURLOptions) (string, error)
 ```
 
 ## Examples

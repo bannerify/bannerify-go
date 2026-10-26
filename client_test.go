@@ -33,6 +33,17 @@ type signedURLVectors struct {
 		} `json:"modifications"`
 		URL string `json:"url"`
 	} `json:"golden"`
+	VideoGolden []struct {
+		Name          string `json:"name"`
+		TemplateID    string `json:"templateId"`
+		Format        string `json:"format"`
+		NoCache       bool   `json:"nocache"`
+		Modifications []struct {
+			Name string `json:"name"`
+			Text string `json:"text"`
+		} `json:"modifications"`
+		URL string `json:"url"`
+	} `json:"videoGolden"`
 }
 
 // The vectors come from the JavaScript URLSearchParams, which the server uses to
@@ -107,6 +118,35 @@ func TestGenerateImageSignedURLMatchesGoldenURLs(t *testing.T) {
 		if got != golden.URL {
 			t.Errorf("%s:\n got  %s\n want %s", golden.Name, got, golden.URL)
 		}
+	}
+}
+
+func TestGenerateVideoSignedURLMatchesGoldenURLs(t *testing.T) {
+	vectors := loadVectors(t)
+	client := NewClient(vectors.APIKey, WithBaseURL(vectors.BaseURL))
+
+	for _, golden := range vectors.VideoGolden {
+		opts := &VideoSignedURLOptions{Format: golden.Format, NoCache: golden.NoCache}
+		for _, modification := range golden.Modifications {
+			text := modification.Text
+			opts.Modifications = append(opts.Modifications, Modification{Name: modification.Name, Text: &text})
+		}
+
+		got, err := client.GenerateVideoSignedURL(golden.TemplateID, opts)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if got != golden.URL {
+			t.Errorf("%s:\n got  %s\n want %s", golden.Name, got, golden.URL)
+		}
+	}
+}
+
+func TestGenerateVideoSignedURLRejectsAnUnsupportedFormat(t *testing.T) {
+	client := NewClient("test-key")
+	if _, err := client.GenerateVideoSignedURL("tpl_x", &VideoSignedURLOptions{Format: "gif"}); err == nil {
+		t.Fatal("expected an error")
 	}
 }
 
